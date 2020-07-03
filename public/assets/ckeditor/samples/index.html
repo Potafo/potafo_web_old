@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<!--
+Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
+For licensing, see LICENSE.md or http://ckeditor.com/license
+-->
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>CKEditor Sample</title>
+	<script src="../ckeditor.js"></script>
+	<script src="js/sample.js"></script>
+	<link rel="stylesheet" href="css/samples.css">
+	<!--<link rel="stylesheet" href="toolbarconfigurator/lib/codemirror/neo.css">-->
+</head>
+<body id="main">
+
+
+
+
+
+<main>
+	
+	<div class="adjoined-bottom">
+		<div class="grid-container">
+			<div class="grid-width-100">
+            <textarea id="editor"></textarea>
+				<!--<div id="editor">
+					<h1>Hello world!</h1>
+					<p>I'm an instance of <a href="http://ckeditor.com">CKEditor</a>.</p>
+				</div>-->
+			</div>
+		</div>
+	</div>
+
+	<div class="grid-container">
+		<div class="content grid-width-100">
+			<section id="sample-customize">
+				<h2>Customize Your Editor</h2>
+				<p>Modular build and <a href="http://docs.ckeditor.com/#!/guide/dev_configuration">numerous configuration options</a> give you nearly endless possibilities to customize CKEditor. Replace the content of your <code><a href="../config.js">config.js</a></code> file with the following code and refresh this page (<strong>remember to clear the browser cache</strong>)!</p>
+		<pre class="cm-s-neo CodeMirror"><code><span style="padding-right: 0.1px;"><span class="cm-variable">CKEDITOR</span>.<span class="cm-property">editorConfig</span> <span class="cm-operator">=</span> <span class="cm-keyword">function</span>( <span class="cm-def">config</span> ) {</span>
+<span style="padding-right: 0.1px;"><span class="cm-tab">	</span><span class="cm-variable-2">config</span>.<span class="cm-property">language</span> <span class="cm-operator">=</span> <span class="cm-string">'es'</span>;</span>
+<span style="padding-right: 0.1px;"><span class="cm-tab">	</span><span class="cm-variable-2">config</span>.<span class="cm-property">uiColor</span> <span class="cm-operator">=</span> <span class="cm-string">'#F7B42C'</span>;</span>
+<span style="padding-right: 0.1px;"><span class="cm-tab">	</span><span class="cm-variable-2">config</span>.<span class="cm-property">height</span> <span class="cm-operator">=</span> <span class="cm-number">300</span>;</span>
+<span style="padding-right: 0.1px;"><span class="cm-tab">	</span><span class="cm-variable-2">config</span>.<span class="cm-property">toolbarCanCollapse</span> <span class="cm-operator">=</span> <span class="cm-atom">true</span>;</span>
+<span style="padding-right: 0.1px;">};</span></code></pre>
+			</section>
+
+			<section>
+				<h2>Toolbar Configuration</h2>
+				<p>If you want to reorder toolbar buttons or remove some of them, check <a href="toolbarconfigurator/index.html">this handy tool</a>!</p>
+			</section>
+
+			<section>
+				<h2>More Samples!</h2>
+				<p>Visit the <a href="http://sdk.ckeditor.com">CKEditor SDK</a> for a huge collection of samples showcasing editor features, with source code readily available to copy and use in your own implementation.</p>
+			</section>
+
+			
+		</div>
+	</div>
+</main>
+
+<script>
+	initSample();
+</script>
+
+</body>
+</html>

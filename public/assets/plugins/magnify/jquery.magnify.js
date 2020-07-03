@@ -1,0 +1,10 @@
+/*!
+ * jQuery Magnify Plugin v1.3.0 by Tom Doan (http://thdoan.github.io/magnify/)
+ * Based on http://thecodeplayer.com/walkthrough/magnifying-glass-for-images-using-jquery-and-css3
+ *
+ * jQuery Magnify by Tom Doan is licensed under the MIT License.
+ * Read a copy of the license in the LICENSE file or at
+ * http://choosealicense.com/licenses/mit
+ */
+
+!function(n){n.fn.magnify=function(e){var i,a,t,o,r=n.extend({debug:!1,speed:100},e),s=0,l=0,d=function(e){t=n(e),i=t.parents("a"),g(t.attr("data-magnify-src")||r.src||i.attr("href")||"")},g=function(e,d){if(e){var c=new Image;n(c).on({load:function(){t.css("display","block"),t.parent(".magnify").length||t.wrap('<div class="magnify"></div>'),a=t.parent(".magnify"),t.prev(".magnify-lens").length?a.children(".magnify-lens").css("background-image","url("+e+")"):t.before('<div class="magnify-lens loading" style="background:url('+e+') no-repeat 0 0"></div>'),o=a.children(".magnify-lens"),o.removeClass("loading"),s=c.width,l=c.height,r.debug&&console.log("[MAGNIFY] Got zoom image dimensions OK (width x height): "+s+" x "+l),c=null,a.mousemove(function(n){var e=a.offset(),i=n.pageX-e.left;if(nY=n.pageY-e.top,i<a.width()&&nY<a.height()&&i>0&&nY>0?o.fadeIn(r.speed):o.fadeOut(r.speed),o.is(":visible")){var d=i-o.width()/2,g=nY-o.height()/2;if(s&&l)var c=-1*Math.round(i/t.width()*s-o.width()/2),f=-1*Math.round(nY/t.height()*l-o.height()/2),h=c+"px "+f+"px";o.css({top:Math.round(g)+"px",left:Math.round(d)+"px",backgroundPosition:h||""})}}),i.length&&(i.css("display","inline-block"),(d||i.attr("href")&&!t.attr("data-magnify-src")&&!r.src)&&i.click(function(n){n.preventDefault()}))},error:function(){c=null,d?r.debug&&console.log("[MAGNIFY] Parent anchor zoom source is invalid also. Disabling zoom..."):(r.debug&&console.log("[MAGNIFY] Invalid data-magnify-src. Looking in parent anchor instead -> "+i.attr("href")),g(i.attr("href"),!0))}}),c.src=e}};return this.each(function(){d(this)})}}(jQuery);
