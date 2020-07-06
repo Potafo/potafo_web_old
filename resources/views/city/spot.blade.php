@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title','Manage Area')
+@section('title','Manage Spot')
 @section('content')
     <?php
     $pg=app('request')->input('page') ;
@@ -41,32 +41,45 @@
         .dataTables_scrollHeadInner{width: 100% !important}.dataTables_scrollHeadInner table{width: 100% !important}.dataTables_scrollBody table{width: 100% !important} .dataTables_scrollBody {  height: 350px;}
         .Location_btn{
             width: auto;
-    padding: 2px 15px;
-    background-color: #4c7daf !important;
-    border: 1px solid #4c7daf !important;
+    padding:2px 15px;
+    background-color: #4CAF50 !important;
+    border: 1px solid #4caf50 !important;
     box-shadow: 5px 3px 12px #bdbdbd;
-    border-bottom: 3px solid #3a197b !important;
+    border-bottom: 3px solid #197b1d !important;
     font-weight: bold;
     float: right;
     color: #fff;
     border-radius: 20px;
-    /* margin: 8px 3px; */
-    cursor: pointer;
+    margin: 8px 3px;
+    cursor:pointer;
         }
-        .Location_btn:hover{    background-color: #4c7daf !important;}
+        .Location_btn:hover{    background-color: #10bb17 !important;}
     </style>
 
     <link href="{{ asset('public/assets/plugins/datatables/dataTables.bootstrap.min.css') }}" rel="stylesheet">
 
 
     <input type='hidden' id='url' value='{{$url}}' />
-
+   
     <div class="col-sm-12">
-
+    <div class="col-sm-12">
+                <ol class="breadcrumb">
+						<li>
+							<a href="{{ url('index') }}">Dashboard</a>
+						</li>
+						
+						<li class="active ms-hover">
+                        <a href="{{ url('area') }}">Manage Area</a>
+						</li>
+                        <li class="active ms-hover">
+                        Manage Spot
+						</li>
+					</ol>
+				</div>
         <div class="card-box table-responsive" style="padding: 8px 10px;">
             <div class="box master-add-field-box" >
                 <div class="col-md-6 no-pad-left">
-                    <h3>MANAGE AREA</h3>
+                    <h3>MANAGE SPOT</h3>
 
                 </div>
                 <div class="col-md-1 no-pad-left pull-right">
@@ -82,14 +95,19 @@
             <div class="col-md-12">
 
             </div>
-
+            <input type='hidden' id='cityid' value='{{$cityid}}' />
             <table id="example1" class="table table-striped table-bordered">
                 <thead>
                 <tr>
-                    <th style="min-width:30px">Slno</th>
-                    <th style="min-width:150px">Area</th>
-                    <th style="min-width:150px">Status</th>
-                    <th style="min-width:50px">Action</th>
+                   <th style="min-width:30px">Slno</th>
+                    <th style="min-width:150px">Name</th>
+                     <!--<th style="min-width:150px">Latitude</th>
+                    <th style="min-width:50px">Longitude</th>-->
+                    <th style="min-width:150px">Address</th>
+                    <th style="min-width:50px">Radius (M)</th>
+                     <!--<th style="min-width:150px">Map Link</th>-->
+                    <th style="min-width:50px">Status</th>
+                    <th style="min-width:150px">Actions</th>
                 </tr>
                 </thead>
                 <tbody id="arealisting" style="height:390px">
@@ -98,15 +116,31 @@
                         <tr>
                             <td style="text-align: left;width:7%">{{ $sl++ }}</td>
                             <td style="text-align: left;width:10%">{{ $value->name}}</td>
+                             <!--<td style="text-align: left;width:10%">{{ $value->latitude}}</td>
+                            <td style="text-align: left;width:10%">{{ $value->longitude}}</td>-->
+                            <td style="text-align: left;width:10%">{{ $value->address}}</td>
+                            <td style="text-align: left;width:10%">{{ $value->radius}}</td>
+                            <!-- <td style="text-align: left;width:10%">{{ $value->maplink}}</td>-->
+
                             <td style="text-align: left;width:7%">
-                               @if( $value->active == 'Y') Active  @else  Inactive @endif
+
+                            <div class="onoffswitch">
+                                     <input autocomplete="off"   type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch51{{$value->id}}" @if( $value->status == '1') checked @endif>
+                                     <label class="onoffswitch-label" for="myonoffswitch51{{$value->id}}">
+                                       <span class="onoffswitch-inner" onclick="return  statuschange('{{$value->id}}','{{$value->city_id}}')"></span>
+                                       <span class="onoffswitch-switch" onclick="return  statuschange('{{$value->id}}','{{$value->city_id}}')"></span>
+                                      </label>
+                                   </div>
+                              <!-- @if( $value->status == '1') Active  @else  Inactive @endif -->
                             </td>
-                            <td style="text-align: left;width:10%">
-                                <a onclick="return areaedit('{{$value->id}}','{{$value->name}}','{{$value->active}}')" class="btn button_table clear_edit" >
+                            <td style="text-align: left;width:7%">
+                            <a onclick="return edit_spot('{{$value->id}}','{{$value->city_id}}','{{ $value->name}}','{{ $value->latitude}}','{{ $value->longitude}}','{{ $value->address}}','{{ $value->maplink}}','{{$value->status}}','{{$value->radius}}')" class="btn button_table clear_edit" >
                                     <i class="fa fa-pencil"></i>
+                                </a> 
+                                <a onclick="return delete_spot('{{$value->id}}','{{$value->city_id}}')" class="btn button_table clear_edit" >
+                                    <i class="fa fa-trash"></i>
                                 </a>
-                                <!--<a  class="btn " onclick=" view_spotpage('{{$value->id}}')"> Spot</a>-->
-                                <a  onclick="view_spotpage('{{$value->id}}')" class="Location_btn"  style="display: block"><p style="margin-bottom: 0;">Spot</p></a>
+                                <a href="{{$value->maplink}}"  class="Location_btn" target="_blank"  id="locationview" style="display: block"><p style="margin-bottom: 0;">Map</p></a>
                             </td>
                         </tr>
                     @endforeach
@@ -124,61 +158,7 @@
     <!-- End Right content here -->
     <!-- ============================================================== -->
 
-    <div id="add_user" class="add-work-done-poppup-cc" style="display: none;">
-        <div class="add-work-done-poppup">
-            <div class="add-work-done-poppup-head">Add/Edit
-                <a href="#"><div class="close-pop-ad-work-cc ad-work-close-btn"><img src="{{asset ('public/assets/images/black_cross.png') }}"></div></a>
-            </div>
-            <div style="text-align:center;" id="branchtimezone"></div>
-            <div class="add-work-done-poppup-contant">
-                <div class="add-work-done-poppup-textbox-cc">
-                    <div class="add-work-done-poppup-textbox-box">
-
-                        <div class="main_container_track_order_list inner-textbox-cc" style="margin-top:10px;margin-bottom:0">
-
-                            <input type='hidden' id='url' value='{{$url}}' />
-                            <input type='hidden' id='userid' name="userid" />
-                            <div class="main_inner_class_track ">
-                                <div class="group">
-                                    <div style="position: relative">
-                                        <label>Area</label>
-                                        {!! Form::text('area',null, ['class'=>'form-control','id'=>'area','onkeypress' => 'return charonly(event);','required','style'=>"background-color:transparent;",'autofocus' => "true"]) !!}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-xs-3 main_inner_class_track">
-                                <div class="form-group" id="status_p" style="display: none">
-                                    <label for="status"><span style="color:black">&nbsp;</span></label>
-                                    <p style="color: red;margin:0 0 5px"></p>
-                                    {{ Form::select('status',['Y' => 'Active','N' => 'Inactive'],null,['id' => 'status', 'class'=>"form-control"])}}
-                                </div>
-                            </div>
-
-                            <div class="main_inner_class_track" style="width:20%">
-                                <b><p class="" style="color: #000;float:right;cursor:pointer;display: none;background-color: burlywood;margin-top: 6px;padding: 2px 13px;line-height: 30px;" id="getimage" data-toggle="modal"  data-target="#myModal" data-title=""><a style="color: #000;">View image</a></p></b>
-
-                            </div>
-
-                            <div class="box-footer">
-                                <input type="hidden" name="type" id="type" />
-                                <a id="inserting" name="inserting"  class="staff-add-pop-btn staff-add-pop-btn-new" onclick="submit_area('insert');">Submit</a>
-                                <a id="updating" name="updating"  class="staff-add-pop-btn" onclick="submit_area('update');" style="height:40px; bottom: 20px;">Update</a>
-                            </div>
-                        </div>
-
-
-                    </div>
-                </div>
-            </div><!--add-work-done-poppup-textbox-cc-->
-        </div>
-        <div class="add-work-list-cc">
-            <!--<div class="add-work-list-head">LIST</div>-->
-
-
-        </div><!--add-work-done-poppup-->
-
-    </div>
+    
     
 <!-- ---------------------------------   Add spot --------------------------->
     
@@ -196,6 +176,8 @@
 
                             <input type='hidden' id='url' value='{{$url}}' />
                             <input type='hidden' id='userid' name="userid" />
+                            <input type='hidden' id='cityid_edit' name="cityid_edit" />
+                            <input type='hidden' id='spotid_edit' name="spotid_edit" />
                             <div class="main_inner_class_track " style="width: 98%">
                                 <div class="group">
                                     <div style="position: relative">
@@ -237,11 +219,18 @@
                                 </div>
                             </div>
                            
-                            <div class="col-xs-3 main_inner_class_track">
+                            <div class="col-xs-3 main_inner_class_track status_set" style="display:none">
                                 <div class="group" >
                                      <label>Spot Status</label>
                                     
-                                    {{ Form::select('spot_status',['Y' => 'Active','N' => 'Inactive'],null,['id' => 'status', 'class'=>"form-control"])}}
+                                    {{ Form::select('spot_status',['1' => 'Active','0' => 'Inactive'],null,['id' => 'spot_status', 'class'=>"form-control"])}}
+                                </div>
+                            </div>
+                            <div class="col-xs-3 main_inner_class_track radius_cov" style="display:none">
+                                <div class="group" >
+                                     <label>Radius</label>
+                                    
+                                     {!! Form::text('spot_radius',null, ['class'=>'form-control','id'=>'spot_radius','onkeypress' => 'return numonly(event);','required','style'=>"background-color:transparent;",'autofocus' => "true"]) !!}
                                 </div>
                             </div>
 
@@ -253,7 +242,7 @@
                             <div class="box-footer">
                                 <input type="hidden" name="type" id="type" />
                                 <a id="inserting_spot" name="inserting"  class="staff-add-pop-btn staff-add-pop-btn-new" onclick="submit_spot('insert');">Submit</a>
-                                <a id="updating_spot" name="updating"  class="staff-add-pop-btn" onclick="submit_area('update');" style="height:40px; bottom: 20px;">Update</a>
+                                <a id="updating_spot" name="updating"  class="staff-add-pop-btn" onclick="submit_spot('update');" style="height:40px; bottom: 20px;">Update</a>
                             </div>
                         </div>
 
@@ -292,9 +281,24 @@
         $.fn.dataTable.ext.errMode = 'none';
     </script>
     <script>
-function view_spotpage(id)
+function edit_spot(id,cityid,name,lat,long,address, link,status,radius)
 {
-    window.location.href="view_spot/"+id;
+    $("#add_spot").show();
+            $("#inserting_spot").css("display",'none');
+            $("#updating_spot").css("display",'block');
+            
+            $(".radius_cov").css("display",'block');
+            $(".status_set").css("display",'block');
+            $("#spot_radius").val(radius);
+            $("#spotid_edit").val(id);
+            $("#cityid_edit").val(cityid);
+            $("#spot_map_link").val(link);
+            $("#spot_address").val(address);
+            $("#spot_longitude").val(long);
+            $("#spot_latitude").val(lat);
+            $("#spot_name").val(name);
+            $("#spot_status").val(status);
+
 }
         $(document).ready(function() {
             var t = $('#example1').DataTable( {
@@ -344,22 +348,21 @@ function view_spotpage(id)
             $("#add_spot").hide();
         });
         $(".followups-popup-btn").click(function(){
-
-            $("#add_user").show();
-            $("#inserting").css("display",'block');
-            $("#updating").css("display",'none');
+ //spot_map_link spot_address spot_longitude spot_latitude spot_name spot_status
+            $("#add_spot").show();
+            $("#inserting_spot").css("display",'block');
+            $("#updating_spot").css("display",'none');
 
             $("#cl_id").val();
-            $("#group_id").val('');
-            $("#group_id").removeClass('not-active');
-            $("#Currency").val('');
-            $("#reg_email").val('');
-            $("#host_name").text('');
-            $("#port_no").val('');
-            $("#user_name").val('');
-            $("#password").val('');
-            $("#db_name").val('');
-            $("#phone_number").val('');
+           // $("#group_id").val('');
+           // $("#group_id").removeClass('not-active');
+            $("#spot_map_link").val('');
+            $("#spot_address").val('');
+            $("#spot_longitude").val('');
+            $("#spot_latitude").val('');
+            $("#spot_name").val('');
+            $("#spot_radius").val('');
+           
 
         });
         $(".ad-work-close-btn").click(function(){
@@ -377,12 +380,8 @@ function view_spotpage(id)
         $(".ad-work-clear-btn").click(function(){
             $("#area").val('');
             $("#area").focus();
-            $("#status").hide();
+            //$("#status").hide();
         });
-        function spotpage(areaid)
-        {
-            
-        }
         function submit_spot(type)
         {
             //spot_map_link spot_address spot_longitude spot_latitude spot_name spot_status
@@ -395,7 +394,22 @@ function view_spotpage(id)
             var  spot_longitude = $("#spot_longitude").val();
             var  spot_address = $("#spot_address").val();
             var  spot_map_link = $("#spot_map_link").val();
-            var  spot_status = $("#spot_status").val();
+            
+            var  spot_id=0;
+            var  city_id=0;
+            var spot_radius="";
+            var  spot_status='';
+            if(type=="insert")
+            {
+                //var  spot_id = $("#cityid").val();
+              city_id = $("#cityid").val();
+            }else{
+                  city_id = $("#cityid_edit").val();
+                  spot_id = $("#spotid_edit").val();
+                  spot_radius = $("#spot_radius").val();
+                  spot_status = $("#spot_status").val();
+            }
+           
             
             var insert = $("#inserting").val();
             var update =$("#updating").val();
@@ -432,10 +446,10 @@ function view_spotpage(id)
                 //table = $('#arealisting');
                 //table.html('');
                 
-                var data= {"type":type,"spot_map_link":spot_map_link,"spot_address":spot_address,"spot_longitude":spot_longitude,"spot_latitude":spot_latitude,"spot_name":spot_name,"spot_status":spot_status};
+                var data= {"type":type,"spot_id":spot_id,"city_id":city_id,"spot_radius":spot_radius,"spot_map_link":spot_map_link,"spot_address":spot_address,"spot_longitude":spot_longitude,"spot_latitude":spot_latitude,"spot_name":spot_name,"spot_status":spot_status};
                 $.ajax({
                     method: "post",
-                    url : "api/add_spot",
+                    url : "../api/add_spot",
                     data : data,
                     cache : false,
                     crossDomain : true,
@@ -454,6 +468,7 @@ function view_spotpage(id)
                                 timer: 4000,
                                 showConfirmButton: false
                             });
+                            location.reload();
 
                         }
                         else if((json_x.msg)=='already exist')
@@ -477,7 +492,7 @@ function view_spotpage(id)
                                 timer: 4000,
                                 showConfirmButton: false
                             });
-
+                            location.reload();
                         }
                         else if((json_x.msg)=='exist')
                         {
@@ -504,115 +519,44 @@ function view_spotpage(id)
 
             }
         }
-        function submit_area(type)
+        
+
+       
+        function delete_spot(spot_id,city_id)
         {
-            var table ;
-            $('.notifyjs-wrapper').remove();
-            $('input').removeClass('input_focus');
-            $('select').removeClass('input_focus');
-            var  area = $("#area").val();
-            var insert = $("#inserting").val();
-            var update =$("#updating").val();
-            var userid =$("#userid").val();
-            var status =$("#status").val();
-            if(area == '') {
-                $("#area").focus();
-                $.Notification.autoHideNotify('error', 'bottom right','Enter Area.');
-                return false;
-            }
-
-            if(true)
+            if(confirm('Are you sure to delete?'))
             {
-                table = $('#arealisting');
-                table.html('');
-                var data= {"area":area,"status":status,"type":type,"userid":userid};
+                //var siteUrl = $("#spot").val();
+                var table = $('#example1').DataTable();
                 $.ajax({
-                    method: "post",
-                    url : "api/add_area",
-                    data : data,
-                    cache : false,
-                    crossDomain : true,
-                    async : false,
-                    dataType :'text',
-                    success : function(result)
-                    {
-                        var json_x= JSON.parse(result);
-
-                        if((json_x.msg)=='success')
-                        {
+                    method: "get",
+                    url: "../api/spot_delete/" + spot_id + "/" + city_id,
+                    cache: false,
+                    crossDomain: true,
+                    async: false,
+                    dataType: 'text',
+                    success: function (result) {
+                        //var rows = table.rows().remove().draw();
+                        var json_x = JSON.parse(result);
+                        if (json_x.msg == 'deleted') {
                             swal({
 
                                 title: "",
-                                text: "Added Successfully",
-                                timer: 4000,
+                                text: "Deleted Successfully",
+                                timer: 1000,
                                 showConfirmButton: false
                             });
-
+                            window.location.reload();
+                           
                         }
-                        else if((json_x.msg)=='already exist')
-                        {
-                            swal({
-
-                                title: "",
-                                text: "Already Exist",
-                                timer: 4000,
-                                showConfirmButton: false
-                            });
-                        }
-
-
-                        else if((json_x.msg)=='done')
-                        {
-                            swal({
-
-                                title: "",
-                                text: "Updated Successfully",
-                                timer: 4000,
-                                showConfirmButton: false
-                            });
-
-                        }
-                        else if((json_x.msg)=='exist')
-                        {
-                            swal({
-
-                                title: "",
-                                text: "Already Exist",
-                                timer: 4000,
-                                showConfirmButton: false
-                            });
-                        }
-                        $.each(json_x.rows,function(i,val)
-                        {
-                            if( val.active == 'Y')
-                            {
-                              var status =   'Active';
-                            }
-                            else
-                            {
-                                var status =  'Inactive';
-                            }
-                            table.append('<tr><td style="text-align: left;width:7%">'+i+'</td>'+'<td style="text-align: left;width:10%">'+val.name+'</td>'+
-                                         '<td style="text-align: left;width:7%">'+status+'</td>'+'<td style="text-align: left;width:10%">'+
-                                         '<a onclick="return areaedit(\''+val.id+'\',\''+val.name+'\',\''+val.active+'\')" class="btn button_table clear_edit" >'+
-                                         '<i class="fa fa-pencil"></i></a></td></tr>');
-                        });
-                        $("#add_user").hide();
-                        $("#area").val('');
-                        $("#inserting").css("display",'block');
-                        $("#updating").css("display",'none');
-
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
-                        alert(jqXHR.responseText);
                         $("#urls").text(jqXHR.responseText); //@text = response error, it is will be errors: 324, 500, 404 or anythings else
                     }
                 });
-
             }
-
+            return true;
         }
-
         function areaedit(id,area,status)
         {
             $("#userid").val(id);
@@ -628,6 +572,14 @@ function view_spotpage(id)
         }
           </script>
     <script>
+        const openMap = (lat, long) => {
+            const base_url = "https://www.google.com/maps/@";
+            var map_link = base_url + lat + ',' + long + ',15z';
+
+            //location.href = map_link;
+            window.open(map_link, '_blank');
+
+        }
         function numonly(evt)
         {
             var charCode = (evt.which) ? evt.which : evt.keyCode;
@@ -682,6 +634,33 @@ function view_spotpage(id)
             return false;
         return true;
     }
+    function statuschange(spotid,cityid) {
+           // var ids = id;
+
+          
+           
+            var data = {"spot": spotid,"city": cityid};
+            $.ajax({
+                method: "get",
+                url: "{{ route('spot.change_status') }}",
+                data: data,
+                cache: false,
+                crossDomain: true,
+                async: false,
+                dataType: 'text',
+                success: function (result)
+                {//alert(result)
+                    //var json_x = JSON.parse(result);
+                    //    alert(json_x.msg);
+
+                    // location.reload();
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+//                    alert(errorThrown);
+                    $("#errbox").text(jqxhr.responseText);
+                }
+            });
+        }
 </script>
 <script>
     $(document).ready(function() {
@@ -693,3 +672,7 @@ function view_spotpage(id)
 </script>
 
 @endsection
+
+
+
+

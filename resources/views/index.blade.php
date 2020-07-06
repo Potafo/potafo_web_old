@@ -28,7 +28,21 @@
     -ms-transform: skewX(40deg);
     -o-transform: skewX(40deg);
     transform: skewX(40deg);
-}
+}  .Location_btn{
+            width: auto;
+    padding:2px 15px;
+    background-color: #4CAF50 !important;
+    border: 1px solid #4caf50 !important;
+    box-shadow: 5px 3px 12px #bdbdbd;
+    border-bottom: 3px solid #197b1d !important;
+    font-weight: bold;
+    float: right;
+    color: #fff;
+    border-radius: 20px;
+    margin: 8px 3px;
+    cursor:pointer;
+        }
+        .Location_btn:hover{    background-color: #10bb17 !important;}
     .top_sm_anylt_sec{display: none}
 </style>
 <div class="dashboard_main_container">
@@ -113,6 +127,8 @@
                                                     <th>Pending Order</th>
                                                     <th>Total Orders</th>
                                                     <th>Number</th>
+                                                    <th>Action</th>
+													<th>Location</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -126,6 +142,8 @@
                                                             <td><span class="label label-purple"><?=$value['pending']?></span></td>
                                                             <td><?=$value['all_order']?></td>
                                                             <td><?=$value['mobile']?></td>
+							    <td><a class="Location_btn" onclick="stop_service_staff(<?=$value['staffid_on']?>)"><p style="margin-bottom: 0;">stop</p></a></td>
+								<td> <a class="Location_btn" onclick="openMap(<?=$value['latitude']?>,<?=$value['longitude']?>)";   style="display: block"><p style="margin-bottom: 0;">Location</p></a></td>
                                                         </tr>
                                                   @endforeach
                                                 @endif
@@ -227,7 +245,53 @@
     
 @section('jquery')
 
-   
+ <script>
+  const openMap = (lat, long) => {
+            const base_url = "https://www.google.com/maps/@";
+            var map_link = base_url + lat + ',' + long + ',15z';
+
+            //location.href = map_link;
+            window.open(map_link, '_blank');
+
+        }
+ 
+function stop_service_staff(staffid)
+{
+	 swal({
+                title: "",
+                text: "Are you sure you want to end service of this staff?",
+                type: "info",
+                showCancelButton: true,
+                cancelButtonClass: 'btn-white btn-md waves-effect',
+                confirmButtonClass: 'btn-danger btn-md waves-effect waves-light',
+                confirmButtonText: 'Delete',
+                closeOnConfirm: false
+            }, function (isConfirm)
+            {
+                if (isConfirm)
+                {
+	$.ajax({
+                method: "get",
+                url: "api/deliverystaff_attendance/"+staffid,
+                data: data,
+                cache: false,
+                crossDomain: true,
+                async: false,
+                dataType: 'text',
+                success: function (result)
+                {
+                    location.reload();
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+
+                    $("#errbox").text(jqXHR.responseText);
+                }
+            });
+				}
+			}
+			);
+}
+</script> 
      
     
 

@@ -148,6 +148,10 @@ Route::get('fb_restmasterfullinsert','FirebaseController@fb_restmaster');
 //complaints
 Route::get("complaints","ComplaintsController@complaints_view");
 
+//spot
+Route::get('view_spot/{id}', 'SpotController@view_spot');
+Route::get("spot_status_change","SpotController@spot_status_change")->name('spot.change_status');
+
 });
 
 Route::group(['middlewareGroups' => 'prevent-back-history'],function(){

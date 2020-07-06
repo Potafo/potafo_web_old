@@ -10,18 +10,33 @@ use Illuminate\Support\Facades\Input;
 use Helpers\Datasource;
 use Json;
 use Session;
+use Illuminate\Database;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+use Kreait\Firebase;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\ServiceAccount;
+
+//use Illuminate\Database\Query\Builder;
 
 class DashboardController extends Controller
 {
+	public function __construct()
+    { // add this construct to firebase using pages and also 3 use Kreait\
+        $this->jsonfile     = config('firebase.fb_jsonfile');
+        $this->db_uri     = config('firebase.fb_dburi');
+        $serviceAccount = ServiceAccount::fromJsonFile($this->jsonfile);
+        $firebase = (new Factory)
+        ->withServiceAccount($serviceAccount)
+        ->withDatabaseUri($this->db_uri)
+        ->create();
+        $this->firebase_db = $firebase->getDatabase();
+    }
     public function index_function(Request $request)
     {
+       $database = $this->firebase_db;
        $staffid = Session::get('staffid');
-        $desgnationdetails = DB::SELECT("SELECT designation  FROM `users` left Join internal_staffs on  users.staffid =  internal_staffs.id where staffid ='".$staffid."'");
-       /* $designation = $desgnationdetails[0]->designation;
-        if(!in_array(strtoupper($designation),["MANAGER", "SUPER_ADMIN","ADMIN"]))
-        {
-                 return redirect('manage_credits');
-        }*/
        if($staffid!="")
        {
        $assign_staff = DB::SELECT("SELECT a.staff_id,b.first_name,b.last_name,b.mobile FROM delivery_staff_attendence a LEFT JOIN internal_staffs b on a.staff_id=b.id  WHERE a.out_time is NULL and  a.staff_id in (select DISTINCT(id) from internal_staffs s,internal_staffs_area a WHERE s.`id` = a.staff_id and a.area_id in ( SELECT  a1.area_id from users u1, internal_staffs s1, internal_staffs_area a1 where u1.staffid =s1.id and s1.id = a1.staff_id and a1.staff_id = '$staffid'))");
@@ -29,7 +44,7 @@ class DashboardController extends Controller
        $all = array();
        $time_zone   = 'Asia/Kolkata';
        date_default_timezone_set($time_zone);
-       $current_date = date('Y-m-d');
+       $current_date = "2020-07-02";//date('Y-m-d');
        $pending_orders  ="";
         $completed_orders ="";
         $total_orders    ="";
@@ -47,7 +62,10 @@ class DashboardController extends Controller
            foreach($all_details as $val){
                 $all_order = $val->total;
            }
-           $all[$i] = ['name'=>$name.' '.$lastname,'mobile'=>$mobile,'pending'=>$pending,'all_order'=>$all_order];
+          $lat= $database->getReference('location')->getChild($staff->staff_id)->getChild("current_location")->getChild("latitude")->getValue();
+		  $long= $database->getReference('location')->getChild($staff->staff_id)->getChild("current_location")->getChild("longitude")->getValue();
+
+           $all[$i] = ['name'=>$name.' '.$lastname,'mobile'=>$mobile,'pending'=>$pending,'all_order'=>$all_order,'staffid_on'=>$staff->staff_id,'latitude'=>$lat,'longitude'=>$long];
              $i++;
            }
            $order_cat = DB::SELECT("SELECT `order_list_cat` FROM `internal_staffs` WHERE `id`='".$staffid."'");

@@ -15,6 +15,7 @@ use App\City;
 use App\Country;
 use Session;
 use App\UserMaster;
+use Illuminate\Support\Collection;
 class ContentServiceProvider extends ServiceProvider
 {
     /**
@@ -146,7 +147,14 @@ class ContentServiceProvider extends ServiceProvider
     }
     private function loadcountry() {
         view()->composer(['*'], function($view) {
-            $countrylist = DB::SELECT("SELECT name->>'$.country' as country FROM country");
+            $countrylist = [];
+            $countrylists = DB::SELECT("SELECT name as country FROM country");
+            foreach ($countrylists as $key => $country) {
+                $country = json_decode($country->country);
+                $country = json_encode(['country' => $country->country]);
+                array_push($countrylist, json_decode($country));
+            }
+
 			$i=0;
 			$list = array();
 			foreach($countrylist as $list) {
@@ -160,7 +168,15 @@ class ContentServiceProvider extends ServiceProvider
     private function loadcurrency()
     {
         view()->composer(['*'], function($view) {
-            $currencylist = DB::SELECT("SELECT name->>'$.currency ' as currency FROM country");
+            $currencylist = [];
+            $currencylists = DB::SELECT("SELECT name as currency FROM country");
+
+            foreach ($currencylists as $key => $currency) {
+                $currency = json_decode($currency->currency);
+                $currency = json_encode(['currency' => $currency->currency]);
+                array_push($currencylist, json_decode($currency));
+            }
+            
             $i=0;
             $currency_list = array();
             foreach($currencylist as $currency_list) {
@@ -184,14 +200,15 @@ class ContentServiceProvider extends ServiceProvider
         {
             $staffid = Session::get('staffid');
             $logingroup = Session::get('logingroup');
-            if($logingroup=='H'){
-                $permission = DB::SELECT("SELECT modules->>'$.RestauranrReports' as RestauranrReports,JSON_UNQUOTE(modules->'$.banner') as banner,JSON_UNQUOTE(modules->'$.restaurant') as restaurant,JSON_UNQUOTE(modules->'$.staff') as staff,JSON_UNQUOTE(modules->'$.offers') as offers,JSON_UNQUOTE(modules->'$.orders') as orders,JSON_UNQUOTE(modules->'$.reports') as reports,JSON_UNQUOTE(modules->'$.customer') as customer,JSON_UNQUOTE(modules->'$.designation') as designation,JSON_UNQUOTE(modules->'$.staff_report') as staff_report,JSON_UNQUOTE(modules->'$.general_report') as general_report,JSON_UNQUOTE(modules->'$.send_notification') as send_notification,JSON_UNQUOTE(modules->'$.notification_group') as notification_group,modules->>'$.order_history' as order_history from  users a LEFT JOIN internal_staffs b on a.id=b.id where a.restaurant_id= '".$staffid."'");
-            }
-            else{
-//                $permission = DB::SELECT("select module_name,sub_module,active from module_master LEFT JOIN users_modules ON module_master.m_id=users_modules.module_id where user_id='$staffid'");
-                 $permission = DB::SELECT("SELECT modules->>'$.RestauranrReports' as RestauranrReports,JSON_UNQUOTE(modules->'$.banner') as banner,JSON_UNQUOTE(modules->'$.restaurant') as restaurant,JSON_UNQUOTE(modules->'$.staff') as staff,JSON_UNQUOTE(modules->'$.offers') as offers,JSON_UNQUOTE(modules->'$.orders') as orders,JSON_UNQUOTE(modules->'$.reports') as reports,JSON_UNQUOTE(modules->'$.customer') as customer,JSON_UNQUOTE(modules->'$.designation') as designation,JSON_UNQUOTE(modules->'$.staff_report') as staff_report,JSON_UNQUOTE(modules->'$.general_report') as general_report,JSON_UNQUOTE(modules->'$.send_notification') as send_notification,JSON_UNQUOTE(modules->'$.notification_group') as notification_group,modules->>'$.order_history' as order_history from  users a LEFT JOIN internal_staffs b on a.id=b.id where a.staffid= '".$staffid."'");
+            $permission = [];
+//             if($logingroup=='H'){
+//                 $permission = DB::SELECT("SELECT modules->>'$.RestauranrReports' as RestauranrReports,JSON_UNQUOTE(modules->'$.banner') as banner,JSON_UNQUOTE(modules->'$.restaurant') as restaurant,JSON_UNQUOTE(modules->'$.staff') as staff,JSON_UNQUOTE(modules->'$.offers') as offers,JSON_UNQUOTE(modules->'$.orders') as orders,JSON_UNQUOTE(modules->'$.reports') as reports,JSON_UNQUOTE(modules->'$.customer') as customer,JSON_UNQUOTE(modules->'$.designation') as designation,JSON_UNQUOTE(modules->'$.staff_report') as staff_report,JSON_UNQUOTE(modules->'$.general_report') as general_report,JSON_UNQUOTE(modules->'$.send_notification') as send_notification,JSON_UNQUOTE(modules->'$.notification_group') as notification_group,modules->>'$.order_history' as order_history from  users a LEFT JOIN internal_staffs b on a.id=b.id where a.restaurant_id= '".$staffid."'");
+//             }
+//             else{
+// //                $permission = DB::SELECT("select module_name,sub_module,active from module_master LEFT JOIN users_modules ON module_master.m_id=users_modules.module_id where user_id='$staffid'");
+//                  $permission = DB::SELECT("SELECT modules->>'$.RestauranrReports' as RestauranrReports,JSON_UNQUOTE(modules->'$.banner') as banner,JSON_UNQUOTE(modules->'$.restaurant') as restaurant,JSON_UNQUOTE(modules->'$.staff') as staff,JSON_UNQUOTE(modules->'$.offers') as offers,JSON_UNQUOTE(modules->'$.orders') as orders,JSON_UNQUOTE(modules->'$.reports') as reports,JSON_UNQUOTE(modules->'$.customer') as customer,JSON_UNQUOTE(modules->'$.designation') as designation,JSON_UNQUOTE(modules->'$.staff_report') as staff_report,JSON_UNQUOTE(modules->'$.general_report') as general_report,JSON_UNQUOTE(modules->'$.send_notification') as send_notification,JSON_UNQUOTE(modules->'$.notification_group') as notification_group,modules->>'$.order_history' as order_history from  users a LEFT JOIN internal_staffs b on a.id=b.id where a.staffid= '".$staffid."'");
 
-            }
+//             }
             $view->with('permission',$permission);
         });
     }

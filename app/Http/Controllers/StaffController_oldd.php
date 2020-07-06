@@ -15,6 +15,8 @@ use Helpers\Commonsource;
 use App\OrderMaster;
 use DateTime;
 use DateTimeZone;
+use App\StaffAttendance;
+use Auth;
 class StaffController extends Controller
 {
    
@@ -719,6 +721,76 @@ class StaffController extends Controller
                  $result = Commonsource::group_notification($arr);
             }
         }
+    }
+
+    public function deliverystaff_attendance(Request $request, $staff_id)
+    {
+        $timezone = 'ASIA/KOLKATA';
+        $date = new DateTime('now', new DateTimeZone($timezone));
+        $datetime = $date->format('Y-m-d H:i:s');
+        $today = $date->format('Y-m-d');
+        $time = $date->format('H:i:s');
+        $date1 = $date->format('Y-m-d');
+        $details = DB::SELECT('select id FROM internal_staffs WHERE id="'.$staff_id.'" and active ="Y"');
+        if(count($details)>0)
+        {
+            $detail = DB::SELECT('select staff_id,entry_date,in_time,out_time FROM delivery_staff_attendence WHERE out_time IS NULL and staff_id="'.$staff_id.'"');  
+            if(count($detail)>0)
+            {
+                $checkstatus = DB::SELECT('select order_number FROM order_master WHERE delivery_assigned_to = "'.$staff_id.'" and current_status != "D" and current_status !="T" and current_status !="CA"');
+                if(count($checkstatus)>0)
+                {
+                    $msg = 'Order Pending To Be Delivered.';
+                    $current_status = 'Started';
+                }
+                else
+                {
+                   DB::SELECT("UPDATE delivery_staff_attendence SET out_time = '$datetime' WHERE staff_id='$staff_id' and out_time IS NULL ");
+                   DB::SELECT("UPDATE internal_staffs SET current_confirmed_count= 0, dlv_area = NULL, auto_assign_next_order_2 = NULL where id = $staff_id");
+
+                   $attendance = StaffAttendance::where('staff_id', $staff_id)->where('checkout_time', Null)->orderBy('id', 'desc')->first();
+                   $attendance->checkout_time = $datetime;
+
+                   if($request->post('by_admin') == 1 && $attendance && Auth::user()) {
+                        $attendance->checkout_by = 0;
+                        $attendance->done_by_userid = Auth::user()->id;
+                   } elseif($attendance) {
+                        $attendance->checkout_by = 1;
+                   }
+
+                   $attendance->save();
+        
+                   $current_status = 'Closed';
+                   $msg = 'Successful';
+                }
+                return response::json(['msg' => $msg,'current_status' => $current_status]);
+            }
+            else
+            {
+                DB::INSERT("INSERT INTO `delivery_staff_attendence`(`staff_id`, `entry_date`, `slno`, `in_time`) VALUES ('" . trim($staff_id) . "','".$date1."','0','" .$datetime. "')");
+
+                $todays_attendance_count = StaffAttendance::where('staff_id', $staff_id)
+                                                            ->where('created_at', 'like', "$today%")->count();
+
+                StaffAttendance::create([
+                    'staff_id' => $staff_id,
+                    'checkin_serial' => ++$todays_attendance_count,
+                    'checkin_time' => $time,
+                ]);
+
+                DB::SELECT("UPDATE internal_staffs SET auto_assign_after = current_time() where id = $staff_id");
+              $msg = 'Successful';
+              $current_status = 'Started';
+              return response::json(['msg' => $msg,'current_status' => $current_status]);
+               
+            }
+        }
+        else
+        {
+            $msg = 'No Match Found';
+            $current_status = 'Closed';
+            return response::json(['msg' => $msg,'current_status' => $current_status]);
+        }        
     }
 }
 

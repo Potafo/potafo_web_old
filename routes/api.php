@@ -375,4 +375,12 @@ Route::post('category_complaints/add', 'ComplaintsController@category_complaints
 Route::post('submitcomment_cpl', 'ComplaintsController@submitcomment');
 Route::get('followup_delete/{id}/{slno}','ComplaintsController@followup_delete');
 
-Route::get('spots', 'SpotController@spots');
+//spot
+Route::get('spot/{latitude?}/{longitude?}', 'SpotController@index');
+Route::get('check-spot/{latitude}/{longitude}', 'SpotController@check_starting_spot');
+
+Route::get('spot_delete/{spotid}/{cityid}','SpotController@spot_delete');
+Route::post('add_spot', 'SpotController@add_spot');
+
+
+Route::post('v2/staff/report', 'ApiController@attendance_report');

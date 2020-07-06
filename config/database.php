@@ -41,11 +41,11 @@ return [
 
         'mysql' => [
             'driver' => 'mysql',
-            'host' => 'localhost',
+            'host' => 'potafoserver.cqnvjj61t89q.ap-south-1.rds.amazonaws.com',
             'port' => '3306',
-            'database' => 'potafo',
-            'username' => 'root',
-            'password' => '',
+            'database' => 'testing_new',
+            'username' => 'serveradmin',
+            'password' => 'Potpie$2020#',
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => 'utf8mb4',
             'collation' => 'utf8mb4_unicode_ci',
