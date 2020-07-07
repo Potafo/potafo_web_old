@@ -35,7 +35,7 @@ class DashboardController extends Controller
     }
     public function index_function(Request $request)
     {
-       $database = $this->firebase_db;
+		 $database = $this->firebase_db;
        $staffid = Session::get('staffid');
        if($staffid!="")
        {
@@ -49,7 +49,7 @@ class DashboardController extends Controller
         $completed_orders ="";
         $total_orders    ="";
         $cancelled_orders ="";
-       foreach($assign_staff as $staff)
+      /* foreach($assign_staff as $staff)
        {
            $name    = $staff->first_name;
            $lastname    = $staff->last_name;
@@ -67,7 +67,7 @@ class DashboardController extends Controller
 
            $all[$i] = ['name'=>$name.' '.$lastname,'mobile'=>$mobile,'pending'=>$pending,'all_order'=>$all_order,'staffid_on'=>$staff->staff_id,'latitude'=>$lat,'longitude'=>$long];
              $i++;
-           }
+           }*/
            $order_cat = DB::SELECT("SELECT `order_list_cat` FROM `internal_staffs` WHERE `id`='".$staffid."'");
            
            foreach($order_cat as $valt){
@@ -105,7 +105,64 @@ class DashboardController extends Controller
            return view('userlogin.login');
        }
    }
-   
+   function load_todays_staff(Request $request)
+   {
+	   $database = $this->firebase_db;
+	    $staffid = Session::get('staffid');
+	   if($staffid!="")
+       {
+       $assign_staff = DB::SELECT("SELECT a.staff_id,b.first_name,b.last_name,b.mobile FROM delivery_staff_attendence a LEFT JOIN internal_staffs b on a.staff_id=b.id  WHERE a.out_time is NULL and  a.staff_id in (select DISTINCT(id) from internal_staffs s,internal_staffs_area a WHERE s.`id` = a.staff_id and a.area_id in ( SELECT  a1.area_id from users u1, internal_staffs s1, internal_staffs_area a1 where u1.staffid =s1.id and s1.id = a1.staff_id and a1.staff_id = '$staffid'))");
+       $i=0;
+       $all = array();
+       $time_zone   = 'Asia/Kolkata';
+       date_default_timezone_set($time_zone);
+       $current_date = "2020-07-02";//date('Y-m-d');
+       foreach($assign_staff as $staff)
+       {
+           $name    = $staff->first_name;
+           $lastname    = $staff->last_name;
+           $mobile  = $staff->mobile;
+           $pending_details = DB::SELECT("SELECT count(*) as total FROM order_master WHERE delivery_assigned_to='".$staff->staff_id."' AND date(order_date)='".$current_date."' AND current_status IN('OP','C')");
+           foreach($pending_details as $val){
+                $pending = $val->total;
+           }
+           $all_details = DB::SELECT("SELECT count(*) as total FROM order_master WHERE delivery_assigned_to='".$staff->staff_id."' AND date(order_date)='".$current_date."' AND current_status IN('D','OP','C')");
+           foreach($all_details as $val){
+                $all_order = $val->total;
+           }
+          $lat= $database->getReference('location')->getChild($staff->staff_id)->getChild("current_location")->getChild("latitude")->getValue();
+		  $long= $database->getReference('location')->getChild($staff->staff_id)->getChild("current_location")->getChild("longitude")->getValue();
+
+           $all[$i] = ['name'=>$name.' '.$lastname,'mobile'=>$mobile,'pending'=>$pending,'all_order'=>$all_order,'staffid_on'=>$staff->staff_id,'latitude'=>$lat,'longitude'=>$long];
+             $i++;
+        }
+		
+		$append='';
+		 if(count($all)>0)
+		 {
+         $i = 0; 
+         foreach($all as $value)
+		 {
+         $i++; 
+         $append.="<tr>";
+         $append.="<td style='width: 10%;'>".$i."</td>";
+         $append.="<td style='width: 10%;'>".$value['name']."</td>";
+         $append.="<td style='width: 10%;'><span class='label label-purple'>".$value['pending']."</span></td>";
+         $append.="<td style='width: 10%;'>".$value['all_order']."</td>";
+         $append.="<td style='width: 10%;'>".$value['mobile']."</td>";
+		$append.="<td style='width: 10%;'><a class='Location_btn_red' onclick='stop_service_staff(".$value['staffid_on'].")' style='float: left;'><p style='margin-bottom: 0;'>stop</p></a></td>";
+		$append.="<td style='width: 10%;'> <a class='Location_btn' onclick='openMap(".$value['latitude'].",".$value['longitude'].")   style='float: left;'><p style='margin-bottom: 0;'>Location</p></a></td>";
+        $append.="</tr>";
+         }
+	   }
+return $append;	   
+												 
+		
+	   }else
+       {
+           return view('userlogin.login');
+       }
+   }
    function total_summary_orders(Request $request)
    {    
         $time_zone              = 'Asia/Kolkata';

@@ -36,13 +36,29 @@
     box-shadow: 5px 3px 12px #bdbdbd;
     border-bottom: 3px solid #197b1d !important;
     font-weight: bold;
-    float: right;
+    float: left;
     color: #fff;
     border-radius: 20px;
     margin: 8px 3px;
     cursor:pointer;
         }
         .Location_btn:hover{    background-color: #10bb17 !important;}
+    .top_sm_anylt_sec{display: none}
+	.Location_btn_red{
+            width: auto;
+    padding:2px 15px;
+    background-color: #f91200 !important;
+    border: 1px solid #f91200 !important;
+    box-shadow: 5px 3px 12px #bdbdbd;
+    border-bottom: 3px solid #690e0e !important;
+    font-weight: bold;
+    float: left;
+    color: #fff;
+    border-radius: 20px;
+    margin: 8px 3px;
+    cursor:pointer;
+        }
+        .Location_btn_red:hover{    background-color: #4CAF50 !important;}
     .top_sm_anylt_sec{display: none}
 </style>
 <div class="dashboard_main_container">
@@ -113,7 +129,7 @@
                                 <h3 class="portlet-title text-dark text-uppercase">
                                     Today's Delivery Staffs
                                 </h3>
-                                
+                                <a onclick="reload_orderlist()" style='float:right'><i class="fa fa-refresh fa-spin" style="font-size:30px;color:red;cursor: pointer;"></i></span>
                                 
                             </div>
                             <div id="portlet2" class="panel-collapse collapse in">
@@ -122,31 +138,31 @@
                                         <table class="table">
                                             <thead>
                                                 <tr>
-                                                    <th>#</th>
-                                                    <th>Name</th>
-                                                    <th>Pending Order</th>
-                                                    <th>Total Orders</th>
-                                                    <th>Number</th>
-                                                    <th>Action</th>
-													<th>Location</th>
+                                                    <th style='width: 10%;'>#</th>
+                                                    <th style='width: 10%;'>Name</th>
+                                                    <th style='width: 10%;'>Pending Order</th>
+                                                    <th style='width: 10%;'>Total Orders</th>
+                                                    <th style='width: 10%;'>Number</th>
+                                                    <th style='width: 10%;'>Action</th>
+													<th style='width: 10%;'>Location</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
-                                                @if(count($all)>0)
+                                            <tbody id="table_fullist">
+                                              <!--  @if(count($all)>0)
                                                 <?php $i = 0; ?>
                                                   @foreach($all as $value)
                                                <?php $i++;  ?>   
                                                         <tr>
-                                                            <td><?=$i?></td>
-                                                            <td><?=$value['name']?></td>
-                                                            <td><span class="label label-purple"><?=$value['pending']?></span></td>
-                                                            <td><?=$value['all_order']?></td>
-                                                            <td><?=$value['mobile']?></td>
-							    <td><a class="Location_btn" onclick="stop_service_staff(<?=$value['staffid_on']?>)"><p style="margin-bottom: 0;">stop</p></a></td>
-								<td> <a class="Location_btn" onclick="openMap(<?=$value['latitude']?>,<?=$value['longitude']?>)";   style="display: block"><p style="margin-bottom: 0;">Location</p></a></td>
+                                                            <td style='width: 10%;'><?=$i?></td>
+                                                            <td style='width: 10%;'><?=$value['name']?></td>
+                                                            <td style='width: 10%;'><span class="label label-purple"><?=$value['pending']?></span></td>
+                                                            <td style='width: 10%;'><?=$value['all_order']?></td>
+                                                            <td style='width: 10%;'><?=$value['mobile']?></td>
+							    <td style="width: 10%;"><a class="Location_btn_red" onclick="stop_service_staff(<?=$value['staffid_on']?>)" style='float: left;'><p style="margin-bottom: 0;">stop</p></a></td>
+								<td style="width: 10%;"><a class="Location_btn" onclick="openMap(<?=$value['latitude']?>,<?=$value['longitude']?>)";   style="float: left;"><p style="margin-bottom: 0;">Location</p></a></td>
                                                         </tr>
                                                   @endforeach
-                                                @endif
+                                                @endif-->
                                             </tbody>
                                         </table>
                                     </div>
@@ -246,6 +262,10 @@
 @section('jquery')
 
  <script>
+  $(document).ready(function()
+    {reload_orderlist();
+      
+    });
   const openMap = (lat, long) => {
             const base_url = "https://www.google.com/maps/@";
             var map_link = base_url + lat + ',' + long + ',15z';
@@ -258,22 +278,22 @@
 function stop_service_staff(staffid)
 {
 	 swal({
-                title: "",
+                title: "Warning",
                 text: "Are you sure you want to end service of this staff?",
-                type: "info",
+                type: "warning",
                 showCancelButton: true,
                 cancelButtonClass: 'btn-white btn-md waves-effect',
                 confirmButtonClass: 'btn-danger btn-md waves-effect waves-light',
-                confirmButtonText: 'Delete',
+                confirmButtonText: 'Yes',
                 closeOnConfirm: false
             }, function (isConfirm)
             {
                 if (isConfirm)
                 {
 	$.ajax({
-                method: "get",
+                method: "post",
                 url: "api/deliverystaff_attendance/"+staffid,
-                data: data,
+                data: {"by_admin":"1"},
                 cache: false,
                 crossDomain: true,
                 async: false,
@@ -290,6 +310,25 @@ function stop_service_staff(staffid)
 				}
 			}
 			);
+}
+function reload_orderlist()
+{
+	$.ajax({
+                method: "get",
+                url: "load_todays_staff",
+                cache: false,
+                crossDomain: true,
+                async: false,
+                dataType: 'text',
+                success: function (response)
+                {
+                    $('#table_fullist').html(response);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+
+                    $("#errbox").text(jqXHR.responseText);
+                }
+            });
 }
 </script> 
      
