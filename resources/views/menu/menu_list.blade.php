@@ -212,7 +212,7 @@
 					<td  style="min-width:10px">
 						<a class="btn tbl_view_sec_btn" rel="popover" data-img="@if(isset($item->m_image) && $item->m_image != ''){{  $siteUrl.$item->m_image }}@endif" href="" style="text-decoration: underline;">View</a>
 					</td>
-					<td  style="min-width:10px"><a  class="btn button_table"  onclick="popupimageupload($restaurant_id,$item->menu_id)"><i class="fa fa-upload"></i></a></td>
+					<td  style="min-width:10px"><a  class="btn button_table"  onclick="popupimageupload('{{ $restaurant_id}}','{{$item->menu_id}}')"><i class="fa fa-upload"></i></a></td>
                     <td  style="min-width:10px"><a  class="btn button_table" href="{{ url('menu/edit/'.$restaurant_id.'/'.$item->menu_id) }}" onclick="oneditclick()"><i class="fa fa-pencil"></i></a></td>
                     </tr>
                     @endforeach
