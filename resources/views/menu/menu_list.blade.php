@@ -269,22 +269,22 @@
 <div class="timing_popup_cc" id="imageupload_details_popup">
         <div class="timing_popup" >
             <div class="timing_popup_head">Image Upload <span id=""> </span>
-                <div onclick='closebutton()' class="timing_popup_cls"><img src="{{asset('public/assets/images/cancel.png') }}"></div>
+                <div onclick='closebutton()' class="timing_popup_cls_f"><img src="{{asset('public/assets/images/cancel.png') }}"></div>
                 
             </div>
             <div class="timing_popup_contant">
                 <div class="restaurant_more_detail_row">
- {!! Form::open([ 'enctype'=>'multipart/form-data','name'=>'frm_upload', 'id'=>'frm_upload','method'=>'get']) !!}
+ {!! Form::open([ 'enctype'=>'multipart/form-data','name'=>'frm_upload_f', 'id'=>'frm_upload_f','method'=>'get']) !!}
                     <div class="restaurant_more_detail_text" style="width:33%;margin-right:2%">
                         <span class="restaurant_more_detail_text_nm">Image</span>
-                       <input style="padding-left:5px;" type="file" id="upld_file" name="upld_file" class="form-control">
+                       <input style="padding-left:5px;" type="file" id="upld_file_f" name="upld_file_f" class="form-control">
        
                     </div>
 
                     <input type="text" id="menuid" name="menuid" hidden="">
 					<input type="text" id="restaurant_id" name="restaurant_id" hidden="">
                     <div class="restaurant_more_detail_text" style="width:15%;">
-                        <div class="add_time_btn_pop"  onclick="addimage()" >ADD</div>
+                        <div class="add_time_btn_pop_f"  onclick="addimage()" >ADD</div>
                     </div>
                     
                      {{ Form::close() }}
@@ -322,16 +322,16 @@
     <link href="{{asset('public/assets/dark/plugins/bootstrap-select/css/bootstrap-select.min.css') }}" rel="stylesheet" />
     <script>
 	function addimage()
-    { var upload_file = $("#upld_file");
+    { var upload_file = $("#upld_file_f");
 		 if(upload_file.val() != '')
         {
-            if (!hasExtension('upld_file', ['.jpg','.png','.jpeg','.pdf'])) {
+            if (!hasExtension('upld_file_f', ['.jpg','.png','.jpeg','.pdf'])) {
                 upload_file.addClass('input_focus');
                 $.Notification.autoHideNotify('error', 'bottom right','File Format Not Supported');
                 return false;
             }
         }
-		var formdata = new FormData($('#frm_upload')[0]);
+		var formdata = new FormData($('#frm_upload_f')[0]);
              try
              {
                  
@@ -408,6 +408,10 @@
     $(".timing_popup_cls").click(function()
     {
         $(".menu_upload_popup").hide();
+    });
+	$(".timing_popup_cls_f").click(function()
+    {
+        $(".imageupload_details_popup").hide();
     });
 
     

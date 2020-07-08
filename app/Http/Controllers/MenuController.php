@@ -1089,7 +1089,7 @@ $cat = "General";
         //add_mobile cust_name upld_file cpl_date heading description custid
         try {
         //$post = $request->all();D:\wamp\tmp\php40DF.tmp
-      $data2 = $request['upld_file'];
+      $data2 = $request['upld_file_f'];
       $timeDate = date("jmYhis") . rand(991, 9999);
       
       
@@ -1123,7 +1123,7 @@ $cat = "General";
         
           $menuid  =$request['menuid'];
 		  $restaurantid  =$request['restaurant_id'];
-        DB::UPDATE("UPDATE `restaurant_menu` set m_image = json_object('img1', $image_url) WHERE m_menu_id=$menuid and m_rest_id=$restaurantid");
+        DB::UPDATE('UPDATE `restaurant_menu` set m_image = json_object('img1','" . $image_url . "') WHERE m_menu_id="'.$menuid.'" and m_rest_id="'.$restaurantid.'"');
 		//json_object('img1','" . $image_url . "')
         return "success";
         } catch (\Exception $e) {
