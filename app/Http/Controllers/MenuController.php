@@ -1084,5 +1084,52 @@ $cat = "General";
         }
 
     }
-    
+    public function add_menu_image(Request $request) 
+            {
+        //add_mobile cust_name upld_file cpl_date heading description custid
+        try {
+        //$post = $request->all();D:\wamp\tmp\php40DF.tmp
+      $data2 = $request['upld_file'];
+      $timeDate = date("jmYhis") . rand(991, 9999);
+      
+      
+      
+      $image_url='';
+      $timezone = 'ASIA/KOLKATA';
+        $date = new DateTime('now', new DateTimeZone($timezone));
+        $datetime = $date->format('Y-m-d H:i:s');
+      $cpl_date= isset($request['cpl_date'])?date("Y-m-d", strtotime(trim($request['cpl_date']))):'';
+        if(isset($data2) && $data2 !='')
+        {
+            $extension2 = strtolower($data2->getClientOriginalExtension());
+            $uploadfile = "menu-".time(). '.' .$extension2;
+            
+            //$path1 = 'uploads/banner/web/' . $url2;
+            $image_url = 'uploads/menu/' . $uploadfile;
+            move_uploaded_file($data2,$image_url);
+//        $img1 = str_replace('data:image/'.$extension2.';base64,', '', $data2);
+//        $img1 = str_replace(' ', '+', $img1);
+//        $base_data2 = base64_decode($img1);
+//        file_put_contents( base_path().'/'.$image_url, $base_data2);
+            //Image::make($data2)->save(base_path() . '/uploads/complaints/' . $uploadfile);//->resize(700, 640)
+           
+            
+         //$image_url=$path1;
+        }
+        else
+        {
+            $image_url = '';
+        }
+        
+          $menuid  =$request['menuid'];
+		  $restaurantid  =$request['restaurant_id'];
+        DB::UPDATE('UPDATE `restaurant_menu` set m_image = json_object('img1','" . $image_url . "') WHERE m_menu_id="'.$menuid.'" and m_rest_id="'.$restaurantid.'"');
+		//json_object('img1','" . $image_url . "')
+        return "success";
+        } catch (\Exception $e) {
+            return $e->getMessage();
+//               / console.log($e->getMessage());
+                 }
+                   
+    } 
 }

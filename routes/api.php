@@ -384,3 +384,5 @@ Route::post('add_spot', 'SpotController@add_spot');
 
 Route::post('v2/staff/report', 'ApiController@attendance_report');
 Route::post('v2/staff/split-report', 'ApiController@splitted_attendance_report');
+
+Route::post('add_menu_image','MenuController@add_menu_image');

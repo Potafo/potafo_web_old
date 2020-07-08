@@ -166,6 +166,7 @@
                     <th style="min-width:60px">Most Selling</th>
                     <th style="min-width:100px">Time of Avl</th>
                     <th style="min-width:40px">Status</th>
+					<th style="min-width:40px">Image</th>
                     <th style="min-width:10px"></th>
                 </tr>
                 </thead>
@@ -208,6 +209,10 @@
                             </div>
                         </div>
                     </td>
+					<td  style="min-width:10px">
+						<a class="btn tbl_view_sec_btn" rel="popover" data-img="@if(isset($item->m_image) && $item->m_image != ''){{  $siteUrl.$item->m_image }}@endif" href="" style="text-decoration: underline;">View</a>
+					</td>
+					<td  style="min-width:10px"><a  class="btn button_table"  onclick="popupimageupload($restaurant_id,$item->menu_id)"><i class="fa fa-upload"></i></a></td>
                     <td  style="min-width:10px"><a  class="btn button_table" href="{{ url('menu/edit/'.$restaurant_id.'/'.$item->menu_id) }}" onclick="oneditclick()"><i class="fa fa-pencil"></i></a></td>
                     </tr>
                     @endforeach
@@ -261,7 +266,36 @@
 </div>
     <div id="urls"></div>
     
+<div class="timing_popup_cc" id="imageupload_details_popup">
+        <div class="timing_popup" >
+            <div class="timing_popup_head">Image Upload <span id=""> </span>
+                <div onclick='closebutton()' class="timing_popup_cls"><img src="{{asset('public/assets/images/cancel.png') }}"></div>
+                
+            </div>
+            <div class="timing_popup_contant">
+                <div class="restaurant_more_detail_row">
+ {!! Form::open([ 'enctype'=>'multipart/form-data','name'=>'frm_upload', 'id'=>'frm_upload','method'=>'get']) !!}
+                    <div class="restaurant_more_detail_text" style="width:33%;margin-right:2%">
+                        <span class="restaurant_more_detail_text_nm">Image</span>
+                       <input style="padding-left:5px;" type="file" id="upld_file" name="upld_file" class="form-control">
+       
+                    </div>
 
+                    <input type="text" id="menuid" name="menuid" hidden="">
+					<input type="text" id="restaurant_id" name="restaurant_id" hidden="">
+                    <div class="restaurant_more_detail_text" style="width:15%;">
+                        <div class="add_time_btn_pop"  onclick="addimage()" >ADD</div>
+                    </div>
+                    
+                     {{ Form::close() }}
+                </div>
+
+
+
+
+            </div>
+        </div>
+    </div>
 
 
     <style>#datatable-fixed-col_filter{display:none}table.dataTable thead th{white-space:nowrap;padding-right: 20px;}
@@ -287,6 +321,63 @@
     <script src="{{asset('public/assets/dark/plugins/bootstrap-select/js/bootstrap-select.min.js') }}" type="text/javascript"></script>
     <link href="{{asset('public/assets/dark/plugins/bootstrap-select/css/bootstrap-select.min.css') }}" rel="stylesheet" />
     <script>
+	function addimage()
+    {
+		 if(upload_file.val() != '')
+        {
+            if (!hasExtension('upld_file', ['.jpg','.png','.jpeg','.pdf'])) {
+                upload_file.addClass('input_focus');
+                $.Notification.autoHideNotify('error', 'bottom right','File Format Not Supported');
+                return false;
+            }
+        }
+		var formdata = new FormData($('#frm_upload')[0]);
+             try
+             {
+                 
+            $.ajax({
+                type: "POST",
+                url: "api/add_menu_image",
+                data: formdata,
+                cache : false,
+                crossDomain : true,
+                async : false,
+                dataType :'text',
+                processData: false,
+                contentType: false,
+                success: function (result) {
+//                   / var json_x = JSON.parse(result);
+                    //alert(result);
+                    if ((result) == 'success') {
+                        swal({
+
+                            title: "",
+                            text: "Added Successfully",
+                            timer: 4000,
+                            showConfirmButton: false
+                        });
+                    }
+                    else if ((result) == 'already exist') {
+                        swal({
+
+                            title: "",
+                            text: "Already Exist",
+                            timer: 4000,
+                            showConfirmButton: false
+                        });
+                    }
+                    location.reload();
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert(jqXHR.responseText);
+                    $("#urls").text(jqXHR.responseText); //@text = response error, it is will be errors: 324, 500, 404 or anythings else
+                }
+            });
+        }catch(e)
+        {
+          alert("Error Name: " + e.name + ' Error Message: ' + e);  
+        }
+	}
         $(document).ready(function()
         {
             var t = $('#datatable-1').DataTable({
@@ -522,6 +613,43 @@
         var info = $('#datatable-1').DataTable().page.info();
        // alert(info.page);
     }
+	 function popupimageupload(restaurant,menuid) 
+        {
+           $("#imageupload_details_popup").show();
+           var restaurant = restaurant;
+          var menuid =menuid;
+          $("#restaurant_id").html(restaurant);
+          $("#menuid").html(menuid);
+          
+         /* var data = {"menuid": cityid};
+           $.ajax({
+                method: "get",
+                url: "api/view_pincode/" + cityid,
+                
+                cache: false,
+                crossDomain: true,
+                async: false,
+                dataType: 'text',
+                success: function (result)
+                {
+                   $('#listing_pin tbody').html('');
+                   $('#listing_pin tbody').html(result);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $("#errbox").text(jqxhr.responseText);
+                }
+            });*/
+        }
+		$(document).ready(function()
+        {
+            $('a[rel=popover]').popover({
+                html: true,
+                trigger: 'hover',
+                placement: 'right',
+                content: function(){return '<img src="'+$(this).data('img') + '" width="200" height="100"/>';}
+            });
+        });
+
 </script>
 
 @stop
