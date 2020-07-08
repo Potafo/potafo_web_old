@@ -53,10 +53,7 @@ class StaffReportController extends Controller
     
     public function filter_staff_reports(Request $request)
     {
-        return response('{
-            "msg": "Exist",
-            "report_data": []
-        }');
+        return response('{"msg":"Not Exist","report_data":[],"Total_Sum":""}');
         $timezone = 'ASIA/KOLKATA';
         $staffid   =   $request['staff_id'];
         $reports_name   =   $request['reports_name'];
