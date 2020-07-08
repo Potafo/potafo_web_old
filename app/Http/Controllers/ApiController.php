@@ -43,9 +43,9 @@ class ApiController extends Controller
             if(count($reports) <= 0) {
                 $reports_response[] = [
                     'time_slot' => $slote->from_time . ' - ' . $slote->to_time,
-                    'duration' => null,
-                    'order_count' => null,
-                    'earnings' => null,
+                    'duration' => 0,
+                    'order_count' => 0,
+                    'earnings' => 0,
                 ];
             }
 
