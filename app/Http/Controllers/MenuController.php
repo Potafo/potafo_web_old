@@ -1123,7 +1123,7 @@ $cat = "General";
         
           $menuid  =$request['menuid'];
 		  $restaurantid  =$request['restaurant_id'];
-        DB::UPDATE('UPDATE `restaurant_menu` set m_image = json_object('img1','" . $image_url . "') WHERE m_menu_id="'.$menuid.'" and m_rest_id="'.$restaurantid.'"');
+        DB::UPDATE("UPDATE `restaurant_menu` set m_image = json_object('img1', $image_url) WHERE m_menu_id=$menuid and m_rest_id=$restaurantid);
 		//json_object('img1','" . $image_url . "')
         return "success";
         } catch (\Exception $e) {
