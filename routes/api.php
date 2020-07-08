@@ -382,5 +382,5 @@ Route::get('check-spot/{latitude}/{longitude}', 'SpotController@check_starting_s
 Route::get('spot_delete/{spotid}/{cityid}','SpotController@spot_delete');
 Route::post('add_spot', 'SpotController@add_spot');
 
-
 Route::post('v2/staff/report', 'ApiController@attendance_report');
+Route::post('v2/staff/split-report', 'ApiController@splitted_attendance_report');

@@ -17,7 +17,7 @@ class ApiController extends Controller
      * @post_data staff_id, from_date, to_date. 
      * @return \Illuminate\Http\Response
      */
-    public function attendance_report(Request $request)
+    public function splitted_attendance_report(Request $request)
     {
         $response = [];
         $reports_response = [];
@@ -101,5 +101,18 @@ class ApiController extends Controller
         ];
 
         return response($response);
+    }
+
+    public function attendance_report(Request $request)
+    {
+        $response = [];
+        $reports_response = [];
+        $staff_id = $request->post('staff_id');
+        $from_date_tmp = $request->post('from_date');
+        $to_date_tmp = $request->post('to_date');
+
+        $time_slots = TimeSlot::all()->where('status', '1');
+        
+        
     }
 }
