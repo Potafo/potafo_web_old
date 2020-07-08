@@ -53,6 +53,7 @@ class StaffReportController extends Controller
     
     public function filter_staff_reports(Request $request)
     {
+        return response('null');
         $timezone = 'ASIA/KOLKATA';
         $staffid   =   $request['staff_id'];
         $reports_name   =   $request['reports_name'];
@@ -709,6 +710,7 @@ else
             }
             foreach($staffs as $item=>$value)
             {
+                dd('this');
                 $totalamount = 0;
                 $name = $value->first_name.' '.$value->last_name;
                 $append .=                '<tr role="row" class="odd" style="background-color: #fff !important;">';
