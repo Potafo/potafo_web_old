@@ -322,7 +322,7 @@
     <link href="{{asset('public/assets/dark/plugins/bootstrap-select/css/bootstrap-select.min.css') }}" rel="stylesheet" />
     <script>
 	function addimage()
-    {
+    { var upload_file = $("#upld_file");
 		 if(upload_file.val() != '')
         {
             if (!hasExtension('upld_file', ['.jpg','.png','.jpeg','.pdf'])) {
