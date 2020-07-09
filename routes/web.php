@@ -152,6 +152,8 @@ Route::get("complaints","ComplaintsController@complaints_view");
 Route::get('view_spot/{id}', 'SpotController@view_spot');
 Route::get("spot_status_change","SpotController@spot_status_change")->name('spot.change_status');
 
+Route::get("load_todays_staff","DashboardController@load_todays_staff");
+
 });
 
 Route::group(['middlewareGroups' => 'prevent-back-history'],function(){

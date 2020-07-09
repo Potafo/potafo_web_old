@@ -39,7 +39,7 @@ class DashboardController extends Controller
        $staffid = Session::get('staffid');
        if($staffid!="")
        {
-       $assign_staff = DB::SELECT("SELECT a.staff_id,b.first_name,b.last_name,b.mobile FROM delivery_staff_attendence a LEFT JOIN internal_staffs b on a.staff_id=b.id  WHERE a.out_time is NULL and  a.staff_id in (select DISTINCT(id) from internal_staffs s,internal_staffs_area a WHERE s.`id` = a.staff_id and a.area_id in ( SELECT  a1.area_id from users u1, internal_staffs s1, internal_staffs_area a1 where u1.staffid =s1.id and s1.id = a1.staff_id and a1.staff_id = '$staffid'))");
+      // $assign_staff = DB::SELECT("SELECT a.staff_id,b.first_name,b.last_name,b.mobile FROM delivery_staff_attendence a LEFT JOIN internal_staffs b on a.staff_id=b.id  WHERE a.out_time is NULL and  a.staff_id in (select DISTINCT(id) from internal_staffs s,internal_staffs_area a WHERE s.`id` = a.staff_id and a.area_id in ( SELECT  a1.area_id from users u1, internal_staffs s1, internal_staffs_area a1 where u1.staffid =s1.id and s1.id = a1.staff_id and a1.staff_id = '$staffid'))");
        $i=0;
        $all = array();
        $time_zone   = 'Asia/Kolkata';
@@ -111,7 +111,8 @@ class DashboardController extends Controller
 	    $staffid = Session::get('staffid');
 	   if($staffid!="")
        {
-       $assign_staff = DB::SELECT("SELECT a.staff_id,b.first_name,b.last_name,b.mobile FROM delivery_staff_attendence a LEFT JOIN internal_staffs b on a.staff_id=b.id  WHERE a.out_time is NULL and  a.staff_id in (select DISTINCT(id) from internal_staffs s,internal_staffs_area a WHERE s.`id` = a.staff_id and a.area_id in ( SELECT  a1.area_id from users u1, internal_staffs s1, internal_staffs_area a1 where u1.staffid =s1.id and s1.id = a1.staff_id and a1.staff_id = '$staffid'))");
+     //  $assign_staff = DB::SELECT("SELECT a.staff_id,b.first_name,b.last_name,b.mobile FROM delivery_staff_attendence a LEFT JOIN internal_staffs b on a.staff_id=b.id  WHERE a.out_time is NULL and  a.staff_id in (select DISTINCT(id) from internal_staffs s,internal_staffs_area a WHERE s.`id` = a.staff_id and a.area_id in ( SELECT  a1.area_id from users u1, internal_staffs s1, internal_staffs_area a1 where u1.staffid =s1.id and s1.id = a1.staff_id and a1.staff_id = '$staffid'))");
+     $assign_staff = DB::SELECT("SELECT a.`staff_id`,b.first_name,b.last_name,b.mobile FROM staff_attendances a LEFT JOIN internal_staffs b on a.staff_id=b.id  WHERE a.checkout_time is NULL and  a.staff_id in (select DISTINCT(id) from internal_staffs s,internal_staffs_area a1 WHERE s.`id` = a1.staff_id and a1.area_id in ( SELECT  a2.area_id from users u1, internal_staffs s1, internal_staffs_area a2 where u1.staffid =s1.id and s1.id = a2.staff_id and a2.staff_id = '".$staffid ."'))");
        $i=0;
        $all = array();
        $time_zone   = 'Asia/Kolkata';
