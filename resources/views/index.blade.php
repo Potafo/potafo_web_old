@@ -129,7 +129,7 @@
                                 <h3 class="portlet-title text-dark text-uppercase">
                                     Today's Delivery Staffs
                                 </h3>
-                                <a onclick="reload_orderlist()" style='float:right'><i class="fa fa-refresh fa-spin" style="font-size:30px;color:red;cursor: pointer;"></i></span>
+                                <a onclick="reload_orderlist()" style='float:right'><i class="fa fa-refresh" style="font-size:30px;color:red;cursor: pointer;"></i></span>
                                 
                             </div>
                             <div id="portlet2" class="panel-collapse collapse in">
