@@ -42,6 +42,30 @@
     overflow: auto;}
     .loader_staff_sec{position: absolute; width: 100%; height: 100%; left: 0; top: 0; background-color: rgba(255, 255, 255, 0.62);
     text-align: center; padding-top: 20%;} .loader_staff_sec img{width:185px} 
+	.timing_popup_cls_f {
+    width: 25px;
+    height: 25px;
+    position: absolute;
+    right: 5px;
+    top: 10px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 25px;
+    cursor: pointer;
+}
+.add_time_btn_pop_f {
+    width: 100%;
+    height: 34px;
+    float: left;
+    background-color: #f00;
+    color: #fff;
+    text-align: center;
+    line-height: 34px;
+    font-size: 13px;
+    margin-top: 22px;
+    cursor: pointer;
+    border-radius: 5px;
+}
 </style>
           <link href="{{ asset('public/assets/plugins/datatables/dataTables.bootstrap.min.css') }}" rel="stylesheet">
           <script src="{{asset('public/assets/admin/script/menu.js') }}" type="text/javascript"></script>
@@ -158,25 +182,26 @@
                 <table id="datatable-1" class="table table-striped table-bordered">
                 <thead>
                 <tr>
-                    <th style="min-width:3px">Slno</th>
-                    <th style="min-width:130px">Name</th>
-                    <th style="min-width:130px">Category</th>
-                    <th style="min-width:120px">Subcategory</th>
+                    <th style="min-width:10%">Slno</th>
+                    <th style="min-width:10%">Name</th>
+                    <th style="min-width:10%">Category</th>
+                    <th style="min-width:10%">Subcategory</th>
       <!--         <th style="min-width:100px">Status</th>-->
-                    <th style="min-width:60px">Most Selling</th>
-                    <th style="min-width:100px">Time of Avl</th>
-                    <th style="min-width:40px">Status</th>
-                    <th style="min-width:10px"></th>
+                    <th style="min-width:10%">Most Selling</th>
+                    <th style="min-width:10%">Time of Avl</th>
+                    <th style="min-width:10%">Status</th>
+					<th style="min-width:10%">Image</th>
+                    <th style="min-width:10%"></th>
                 </tr>
                 </thead>
                 <tbody>
                 @if(count($details)>0)
                     @foreach($details as $key=>$item)
                     <tr>
-                    <td  style="min-width:3px !important;">{{ $key+1 }}</td>
-                    <td style="min-width:130px !important;">{{ title_case($item->name) }}</td>
-                    <td style="min-width:130px !important;white-space:nowrap;">@if(isset($item->category) && $item->category != 'null'){{ mb_strimwidth(implode(",",json_decode($item->category)), 0, 25, "...") }}@endif</td>
-                    <td style="min-width:120px !important;white-space:nowrap;">@if(isset($item->subcategory) &&  $item->subcategory != 'null'){{ mb_strimwidth(implode(",",json_decode($item->subcategory)),0,25,"...") }}@endif</td>
+                    <td  style="min-width:10% !important;">{{ $key+1 }}</td>
+                    <td style="min-width:10% !important;">{{ title_case($item->name) }}</td>
+                    <td style="min-width:10% !important;white-space:nowrap;">@if(isset($item->category) && $item->category != 'null'){{ mb_strimwidth(implode(",",json_decode($item->category)), 0, 25, "...") }}@endif</td>
+                    <td style="min-width:10% !important;white-space:nowrap;">@if(isset($item->subcategory) &&  $item->subcategory != 'null'){{ mb_strimwidth(implode(",",json_decode($item->subcategory)),0,25,"...") }}@endif</td>
      <!--           <td>Yes</td>  -->
                     <!--<td style="min-width:60px !important;">@if(isset($item->days) && $item->days != 'null'){{ mb_strimwidth(implode(",",json_decode($item->days)),0,15,"...") }}@endif</td>-->
                     <td style="text-align: left;width:7%">
@@ -191,7 +216,7 @@
                         </div>
                     </td>
                     
-                    <td style="min-width:100px !important;">@if($item->from_time != '' || $item->to_time !='' ){{ $item->from_time.' - '.$item->to_time }}@endif</td>
+                    <td style="min-width:10% !important;">@if($item->from_time != '' || $item->to_time !='' ){{ $item->from_time.' - '.$item->to_time }}@endif</td>
 <!--                    <td style="min-width:40px;position:relative">
                         @if(isset($item->img) && $item->img != '')
                         <a class="btn" rel="popover" data-img="{{ $siteUrl.$item->img }}" style="text-decoration: underline;">View</a>
@@ -208,7 +233,17 @@
                             </div>
                         </div>
                     </td>
-                    <td  style="min-width:10px"><a  class="btn button_table" href="{{ url('menu/edit/'.$restaurant_id.'/'.$item->menu_id) }}" onclick="oneditclick()"><i class="fa fa-pencil"></i></a></td>
+					<td  style="min-width:10%">
+						<a class="btn tbl_view_sec_btn" rel="popover" data-img="@if(isset($item->img) && $item->img != ''){{  $siteUrl.$item->img }}@endif" href="" style="text-decoration: underline;">View</a>
+					</td>
+                    <td  style="min-width:10%">
+                        <input type="file" id="upld_file_f" name="upld_file_f" style="display:none"/> 
+<button id="OpenImgUpload" class="form-control fa fa-upload" menuid="{{$item->menu_id}}" restaurant_id="{{ $restaurant_id}}"></button>
+                        <!--<input style="padding-left:5px;" type="file" id="upld_file_f" name="upld_file_f" class="form-control fa fa-upload">-->
+                        <!--<a  class="btn button_table"  onclick="popupimageupload('{{ $restaurant_id}}','{{$item->menu_id}}')"><i class="fa fa-upload"></i></a>-->
+                        
+                    </td>
+                    <td  style="min-width:10%"><a  class="btn button_table" href="{{ url('menu/edit/'.$restaurant_id.'/'.$item->menu_id) }}" onclick="oneditclick()"><i class="fa fa-pencil"></i></a></td>
                     </tr>
                     @endforeach
                 @endif
@@ -261,7 +296,36 @@
 </div>
     <div id="urls"></div>
     
+<div class="timing_popup_cc" id="imageupload_details_popup">
+        <div class="timing_popup" >
+            <div class="timing_popup_head">Image Upload <span id=""> </span>
+                <div onclick='closebutton()' class="timing_popup_cls_f"><img src="{{asset('public/assets/images/cancel.png') }}"></div>
+                
+            </div>
+            <div class="timing_popup_contant">
+                <div class="restaurant_more_detail_row">
+ {!! Form::open([ 'enctype'=>'multipart/form-data','name'=>'frm_upload_f', 'id'=>'frm_upload_f','method'=>'get']) !!}
+                    <div class="restaurant_more_detail_text" style="width:33%;margin-right:2%">
+                        <span class="restaurant_more_detail_text_nm">Image</span>
+                       <input style="padding-left:5px;" type="file" id="upld_file_f" name="upld_file_f" class="form-control">
+       
+                    </div>
 
+                    <input type="text" id="menuid" name="menuid" hidden="">
+					<input type="text" id="restaurant_id" name="restaurant_id" hidden="">
+                    <div class="restaurant_more_detail_text" style="width:15%;">
+                        <div class="add_time_btn_pop_f"  onclick="addimage()" >ADD</div>
+                    </div>
+                    
+                     {{ Form::close() }}
+                </div>
+
+
+
+
+            </div>
+        </div>
+    </div>
 
 
     <style>#datatable-fixed-col_filter{display:none}table.dataTable thead th{white-space:nowrap;padding-right: 20px;}
@@ -287,6 +351,66 @@
     <script src="{{asset('public/assets/dark/plugins/bootstrap-select/js/bootstrap-select.min.js') }}" type="text/javascript"></script>
     <link href="{{asset('public/assets/dark/plugins/bootstrap-select/css/bootstrap-select.min.css') }}" rel="stylesheet" />
     <script>
+	function addimage(menuid,restaurant_id,fileName)
+    {alert(menuid);alert(restaurant_id);alert(fileName);
+        /* var upload_file = $("#upld_file_f");
+		 if(upload_file.val() != '')
+        {
+            if (!hasExtension('upld_file_f', ['.jpg','.png','.jpeg','.pdf'])) {
+                upload_file.addClass('input_focus');
+                $.Notification.autoHideNotify('error', 'bottom right','File Format Not Supported');
+                return false;
+            }
+        }alert(upload_file);*/
+       // alert($('#menu_id').val());
+		//var formdata = new FormData($('#frm_upload_f')[0]);
+        var data={"menuid":menuid,"restaurant_id":restaurant_id,"fileName":fileName};
+             try
+             {
+                 
+            $.ajax({
+                type: "POST",
+                url: "../../api/add_menu_image",
+                data: data,
+                cache : false,
+                crossDomain : true,
+                async : false,
+                dataType :'text',
+                processData: false,
+                contentType: false,
+                success: function (result) {
+//                   / var json_x = JSON.parse(result);
+                    alert(result);
+                    if ((result) == 'success') {
+                        swal({
+
+                            title: "",
+                            text: "Added Successfully",
+                            timer: 4000,
+                            showConfirmButton: false
+                        });
+                    }
+                    else if ((result) == 'already exist') {
+                        swal({
+
+                            title: "",
+                            text: "Already Exist",
+                            timer: 4000,
+                            showConfirmButton: false
+                        });
+                    }
+                    location.reload();
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert(jqXHR.responseText);
+                    $("#urls").text(jqXHR.responseText); //@text = response error, it is will be errors: 324, 500, 404 or anythings else
+                }
+            });
+        }catch(e)
+        {
+          alert("Error Name: " + e.name + ' Error Message: ' + e);  
+        }
+	}
         $(document).ready(function()
         {
             var t = $('#datatable-1').DataTable({
@@ -317,6 +441,10 @@
     $(".timing_popup_cls").click(function()
     {
         $(".menu_upload_popup").hide();
+    });
+	$(".timing_popup_cls_f").click(function()
+    {
+        $(".imageupload_details_popup").hide();
     });
 
     
@@ -522,6 +650,76 @@
         var info = $('#datatable-1').DataTable().page.info();
        // alert(info.page);
     }
+	 function popupimageupload(restaurant,menuid) 
+        {
+           $("#imageupload_details_popup").show();
+           var restaurant = restaurant;
+          var menuid =menuid;
+          $("#restaurant_id").val(restaurant);
+          $("#menuid").val(menuid);
+          
+         /* var data = {"menuid": cityid};
+           $.ajax({
+                method: "get",
+                url: "api/view_pincode/" + cityid,
+                
+                cache: false,
+                crossDomain: true,
+                async: false,
+                dataType: 'text',
+                success: function (result)
+                {
+                   $('#listing_pin tbody').html('');
+                   $('#listing_pin tbody').html(result);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    $("#errbox").text(jqxhr.responseText);
+                }
+            });*/
+        }
+		$(document).ready(function()
+        {
+            $('#OpenImgUpload').click(function(){ $('#upld_file_f').trigger('click'); });
+
+          
+            $('#upld_file_f').change(function () {
+                
+            var menuid= $("#OpenImgUpload").attr( "menuid" );
+            var restaurant_id= $("#OpenImgUpload").attr( "restaurant_id" );
+            var fileName =$(this).val();//$(this).val().split('\\')[$(this).val().split('\\').length - 1];
+          
+                var formData = new FormData();
+                formData.append('file', $('#upld_file_f')[0].files[0]);
+                formData.append('menuid', menuid);
+                formData.append('restaurant_id', restaurant_id);
+                $.ajax({
+                    contentType: false,
+                    cache: false,
+                    processData: false,
+                    url: "../../api/add_menu_image",
+                    type: 'POST',
+                    data: formData,
+                    success: function(data) {
+                        console.log(data);
+                        location.reload();
+                    },
+                    error: function() {
+                        console.log('Upload file failed!');
+                    }
+                });
+
+
+         // addimage(menuid,restaurant_id,fileName);
+            /*filePath.html("<b>Selected File: </b>" + fileName);*/
+        });
+            $('a[rel=popover]').popover({
+                html: true,
+                trigger: 'hover',
+                placement: 'right',
+                content: function(){return '<img src="'+$(this).data('img') + '" width="200" height="100"/>';}
+            });
+        });
+
 </script>
 
 @stop
