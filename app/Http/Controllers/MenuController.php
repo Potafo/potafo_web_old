@@ -1086,41 +1086,28 @@ $cat = "General";
     }
     public function add_menu_image(Request $request) 
     {
-//add_mobile cust_name upld_file cpl_date heading description custid
-try {
-    $data2 = $request['file'];
-    $timeDate = date("jmYhis") . rand(991, 9999);
-    
-    
-    
-    $image_url='';
-    $timezone = 'ASIA/KOLKATA';
-      $date = new DateTime('now', new DateTimeZone($timezone));
-      $datetime = $date->format('Y-m-d H:i:s');
-   // $cpl_date= isset($request['cpl_date'])?date("Y-m-d", strtotime(trim($request['cpl_date']))):'';
-      if(isset($data2) && $data2 !='')
-      {
-          $extension2 = strtolower($data2->getClientOriginalExtension());
-          $uploadfile = "menu-".time(). '.' .$extension2;
-          $image_url = 'uploads/menus/' . $uploadfile;
-          move_uploaded_file($data2,$image_url);
-
-      }
-      else
-      {
-          $image_url = '';
-      }
-
-  $menuid  =$request['menuid'];
-  $restaurantid  =$request['restaurant_id'];
-    DB::UPDATE("UPDATE `restaurant_menu` set m_image = json_object('img1','" . $image_url . "') WHERE m_menu_id='".$menuid."' and m_rest_id='".$restaurantid."'");
-
-return "success";
-} catch (\Exception $e) {
-    
-//console.log($e->getMessage());
-return $e->getMessage();
-         }
+        try {
+            $data2 = $request['file'];
+            $image_url='';
+            if(isset($data2) && $data2 !='')
+            {
+                $extension2 = strtolower($data2->getClientOriginalExtension());
+                $uploadfile = "menu-".time(). '.' .$extension2;
+                $image_url = 'uploads/menus/' . $uploadfile;
+                move_uploaded_file($data2,$image_url);
+            }
+            else
+            {
+                $image_url = '';
+            }
+            $menuid  =$request['menuid'];
+            $restaurantid  =$request['restaurant_id'];
+            DB::UPDATE("UPDATE `restaurant_menu` set m_image = json_object('img1','" . $image_url . "') WHERE m_menu_id='".$menuid."' and m_rest_id='".$restaurantid."'");
+            return "success";
+            } catch (\Exception $e) {   
+                //console.log($e->getMessage());
+                return $e->getMessage();
+            }
            
-} 
+    } 
 }

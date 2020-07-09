@@ -237,11 +237,10 @@
 						<a class="btn tbl_view_sec_btn" rel="popover" data-img="@if(isset($item->img) && $item->img != ''){{  $siteUrl.$item->img }}@endif" href="" style="text-decoration: underline;">View</a>
 					</td>
                     <td  style="min-width:10%">
-                        <input type="file" id="upld_file_f" name="upld_file_f" style="display:none"/> 
-<button id="OpenImgUpload" class="form-control fa fa-upload" menuid="{{$item->menu_id}}" restaurant_id="{{ $restaurant_id}}"></button>
-                        <!--<input style="padding-left:5px;" type="file" id="upld_file_f" name="upld_file_f" class="form-control fa fa-upload">-->
-                        <!--<a  class="btn button_table"  onclick="popupimageupload('{{ $restaurant_id}}','{{$item->menu_id}}')"><i class="fa fa-upload"></i></a>-->
                         
+                        <input type="file" class="upldfile" menuid="{{$item->menu_id}}" restaurant_id="{{ $restaurant_id}}" id="upld_file_f{{ $item->menu_id}}" name="upld_file_f{{ $item->menu_id}}" style="display:none"/> 
+                        <button id="" class="form-control fa fa-upload OpenImgUpload" menuid="{{$item->menu_id}}" restaurant_id="{{ $restaurant_id}}"></button>
+                       
                     </td>
                     <td  style="min-width:10%"><a  class="btn button_table" href="{{ url('menu/edit/'.$restaurant_id.'/'.$item->menu_id) }}" onclick="oneditclick()"><i class="fa fa-pencil"></i></a></td>
                     </tr>
@@ -679,17 +678,22 @@
         }
 		$(document).ready(function()
         {
-            $('#OpenImgUpload').click(function(){ $('#upld_file_f').trigger('click'); });
+            $('.OpenImgUpload').click(function(){ 
+                var menuid= $(this).attr( "menuid" );
+                var restaurant= $(this).attr( "restaurant_id" );
+                $('#upld_file_f'+menuid).trigger('click');
+                
+                 });
 
           
-            $('#upld_file_f').change(function () {
+           $('.upldfile').change(function () {
                 
-            var menuid= $("#OpenImgUpload").attr( "menuid" );
-            var restaurant_id= $("#OpenImgUpload").attr( "restaurant_id" );
+            var menuid= $(this).attr( "menuid" );
+            var restaurant_id= $(this).attr( "restaurant_id" );
             var fileName =$(this).val();//$(this).val().split('\\')[$(this).val().split('\\').length - 1];
           
                 var formData = new FormData();
-                formData.append('file', $('#upld_file_f')[0].files[0]);
+                formData.append('file', $('#upld_file_f'+menuid)[0].files[0]);
                 formData.append('menuid', menuid);
                 formData.append('restaurant_id', restaurant_id);
                 $.ajax({
