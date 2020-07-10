@@ -13,13 +13,13 @@ class Datasource
 
     public static function geturl()
     {
-        $url = "https://www.potafo.in/centralconsole_new/api/";
+        $url = "http://potafo.in/pd1/api/";
         return $url;
     }
 
     public static function getsiteurl()
     {
-        $siteurl = "https://www.potafo.in/centralconsole_new/";
+        $siteurl = "http://potafo.in/pd1/";
         return $siteurl;
     }
 
