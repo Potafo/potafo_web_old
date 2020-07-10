@@ -48,7 +48,6 @@ class ApiController extends Controller
         $attendance_log = [];
 
         $dates = $this->getDatesFromRange($from_date, $to_date);
-
         foreach ($dates as $key => $date) {
             $date_stamp = strtotime($date);
             $to_date_stamp = strtotime($to_date);
@@ -70,7 +69,7 @@ class ApiController extends Controller
                 }
             }
 
-            if (count($worked_hours) <= 0 || $date_stamp >= $to_date_stamp) {
+            if (count($worked_hours) <= 0) {
                 continue;
             }
 
@@ -81,7 +80,6 @@ class ApiController extends Controller
 
                 $duration = 0;
                 $earnings = 0;
-                // dd($worked_hours);
                 foreach ($worked_hours as $key => $time) {
                     $order_amount = 0;
                     $bonus = 0;
@@ -94,7 +92,7 @@ class ApiController extends Controller
                     }
 
                     if ($start_time > $to) {
-                        break;
+                        continue;
                     }
 
                     if ($start_time < $from) {
