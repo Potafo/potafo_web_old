@@ -170,7 +170,7 @@ Route::post('staff_login_credentials','StaffController@staff_login_credentials')
 Route::post('staff_forgot_credentials','StaffController@staff_forgot_credentials');//Lists the staff name and number if code matches
 Route::get('deliverystaff_details/{staffid}','StaffController@deliverystaff_details');//List the entry details of the staff
 Route::post('deliverystaff_addtime/{staffid}','StaffController@deliverystaff_addtime');//Add entry of a particular staff
-Route::post('deliverystaff_attendance/{staffid}','StaffController@deliverystaff_attendance');//Add entry of a particular staff
+Route::post('deliverystaff_attendance/{staffid}/{?spot_id}','StaffController@deliverystaff_attendance');//Add entry of a particular staff
 Route::get('deliverycount_list/{staffid}/{frmdate}/{todate}','StaffController@deliverycount_list');//List the delivery count of particular staff in a date range
 Route::get('delivery_orders/{staffid}','StaffController@delivery_orders');//List of delivery orders.
 Route::get('delivery_order_details/{order_number}','StaffController@delivery_order_details');//List the delivery order details

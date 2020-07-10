@@ -1600,6 +1600,7 @@ class StaffController extends Controller
         $today = $date->format('Y-m-d');
         $time = $date->format('H:i:s');
         $date1 = $date->format('Y-m-d');
+        $spot_id = $request->post('spot_id');
         $details = DB::SELECT('select id FROM internal_staffs WHERE id="'.$staff_id.'" and active ="Y"');
         if(count($details)>0)
         {
@@ -1645,6 +1646,7 @@ class StaffController extends Controller
                     'staff_id' => $staff_id,
                     'checkin_serial' => ++$todays_attendance_count,
                     'checkin_time' => $time,
+                    'checkin_spot' => $spot_id
                 ]);
 
                 DB::SELECT("UPDATE internal_staffs SET auto_assign_after = current_time() where id = $staff_id");

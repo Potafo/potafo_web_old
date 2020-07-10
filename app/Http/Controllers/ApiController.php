@@ -26,6 +26,9 @@ class ApiController extends Controller
     {
         $time_slots = TimeSlot::all();
 
+        $is_from_dash = 0;
+        $is_from_app = $request->post('from_dash');
+
         $response = [];
         $reports_response = [];
         $staff_id = $request->post('staff_id');
@@ -203,11 +206,20 @@ class ApiController extends Controller
             ];
         }
 
-        $response = [
-            'status' => 'success',
-            'response_code' => 200,
-            'data' => $data
-        ];
+        if($is_from_app == 1) {
+            $response = [
+                'status' => 'success',
+                'response_code' => 200,
+                'total_earnings' => $total_earnings,
+                'duraiion' => number_format((float) $total_duration, 1, '.', ''),
+            ];
+        } else {
+            $response = [
+                'status' => 'success',
+                'response_code' => 200,
+                'data' => $data
+            ];
+        }
         return response($response);
     }
 
