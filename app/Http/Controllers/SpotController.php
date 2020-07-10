@@ -28,12 +28,13 @@ class SpotController extends Controller
             *POWER(SIN(($longitude-longitude)*pi()/180/2),2))) 
             as distance FROM area_spot WHERE 
             longitude between ($longitude-$dist/cos(radians($latitude))*69) 
-            and ($longitude+$dist/cos(radians($latitude))*69) 
+            and ($longitude+$dist/cos(radians($latitude))*69)
             and latitude between ($latitude-($dist/69)) 
-            and ($latitude+($dist/69)) ;
+            and ($latitude+($dist/69))
             and status = 1
             and deleted_on is NULL
-            having distance < $dist ORDER BY distance limit 5");
+            having distance < $dist ORDER BY distance limit 5
+            ");
         } else {
             $spots = $spots = Spot::all()->where('status', '1')->where('deleted_on', NULL);
         }                
