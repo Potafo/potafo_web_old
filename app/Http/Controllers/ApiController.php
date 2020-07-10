@@ -83,9 +83,6 @@ class ApiController extends Controller
                 $earnings = 0;
                 // dd($worked_hours);
                 foreach ($worked_hours as $key => $time) {
-                    if($time->checkout_time == Null || $time->checkout_time == 'null' || $time->checkout_time == null) {
-                        continue;
-                    }
                     $order_amount = 0;
                     $bonus = 0;
                     $date = $time->created_at->format('Y-m-d');
