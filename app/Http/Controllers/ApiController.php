@@ -46,8 +46,9 @@ class ApiController extends Controller
 
         $dates = $this->getDatesFromRange($from_date, $to_date);
 
-
         foreach ($dates as $key => $date) {
+            $date_stamp = strtotime($date);
+            $to_date_stamp = strtotime($to_date);
             $bonus_amount = 0;
             $shortage_amount = 0;
             $earnings_log = [];
@@ -57,7 +58,7 @@ class ApiController extends Controller
                 ->where('created_at', 'like',  $date . '%')
                 ->get();
 
-            if (count($worked_hours) <= 0) {
+            if (count($worked_hours) <= 0 || $date_stamp >= $to_date_stamp) {
                 continue;
             }
 
@@ -197,6 +198,7 @@ class ApiController extends Controller
         // Variable that store the date interval 
         // of period 1 day 
         $interval = new DateInterval('P1D');
+        // dd($interval);
 
         $realEnd = new DateTime($end);
         $realEnd->add($interval);
