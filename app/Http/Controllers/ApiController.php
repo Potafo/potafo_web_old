@@ -81,8 +81,9 @@ class ApiController extends Controller
 
                 $duration = 0;
                 $earnings = 0;
+                // dd($worked_hours);
                 foreach ($worked_hours as $key => $time) {
-                    if($time->checkout_time == Null || $time->checkout_time == '') {
+                    if($time->checkout_time == Null || $time->checkout_time == 'null' || $time->checkout_time == null) {
                         continue;
                     }
                     $order_amount = 0;
@@ -168,6 +169,9 @@ class ApiController extends Controller
             }
 
             foreach ($worked_hours as $key => $time) {
+                if($time->checkout_time == Null || $time->checkout_time == 'null' || $time->checkout_time == null) {
+                    continue;
+                }
                 $_duration = 0;
                 $in = strtotime($time->checkin_time);
                 $out = strtotime($time->checkout_time);
