@@ -24,7 +24,7 @@ class RestaurantController extends Controller
     public function view_restaurant(Request $request)
     {
           $staffid = Session::get('staffid');
-		if(!$staffid){return redirect('');}
+          if(!$staffid){return redirect('');}
           $logingroup = Session::get('logingroup');
         $filterarr = array();
        /* $details = DB::SELECT('SELECT name_tagline->>"$.name" as name,mobile->>"$.ind" as code,star_rating->>"$.value" as value,mobile->>"$.mobile" as mob,id,point_of_contact,star_rating,
@@ -43,14 +43,15 @@ class RestaurantController extends Controller
                 }
            }
           $details = DB::SELECT('SELECT name_tagline->>"$.name" as name,mobile->>"$.ind" as code,star_rating->>"$.value" as value,mobile->>"$.mobile" as mob,r.id,point_of_contact,star_rating,
-          popular_display_order,busy,force_close,min_cart_value,extra_rate_percent,phone,pure_veg,login_group as force_login_group,(select login_group from users where users.id = r.busy_by ) as busy_login_group   from restaurant_master r left join users u on r.forceclose_by = u.id where r.`id` != " " and r.city in (SELECT  a.area_id from users u, internal_staffs s, internal_staffs_area a where u.staffid =s.id and s.id = a.staff_id and a.staff_id = "'.$staffid .'") '. $cat_test .' ORDER BY popular_display_order ASC');
+          popular_display_order,busy,force_close,min_cart_value,safety_tag,extra_rate_percent,phone,pure_veg,login_group as force_login_group,(select login_group from users where users.id = r.busy_by ) as busy_login_group   from restaurant_master r left join users u on r.forceclose_by = u.id where r.`id` != " " and r.city in (SELECT  a.area_id from users u, internal_staffs s, internal_staffs_area a where u.staffid =s.id and s.id = a.staff_id and a.staff_id = "'.$staffid .'") '. $cat_test .' ORDER BY popular_display_order ASC');
           return view('restaurant.manage_restaurant',compact('details','logingroup'));
     }
 
     public function view_restaurantdetails(Request $request)
     {
-		 $staffid = Session::get('staffid');
-          if(!$staffid){return redirect('');}
+        $staffid = Session::get('staffid');
+        if(!$staffid){return redirect('');}
+
         $filterarr = array();
         return view('restaurant.restaurant_details');
     }
@@ -67,6 +68,7 @@ class RestaurantController extends Controller
     // Adding of Restaurants and Details
     public function add_restaurant(Request $request)
     {
+        //ALTER TABLE `restaurant_master` ADD `safety_tag` INT(11) NOT NULL DEFAULT '0' AFTER `bill_offer_slno`;
         $logo = Input::file('logo');
         $banner = Input::file('banner');
         $url = Datasource::geturl();
@@ -165,6 +167,10 @@ class RestaurantController extends Controller
         {
             $pack_charge= $request['pack_charge'];
         }
+        if($request['safetytag']!= '')
+        {
+            $safetytag =$request['safetytag'];
+        }
         $restaurant = DB::select("SELECT name_tagline->>'$.name' FROM restaurant_master where name_tagline->>'$.name' = '".$request['rname']."'");
 
         if(count($restaurant)>0)
@@ -200,15 +206,15 @@ class RestaurantController extends Controller
             $geo_location =  str_replace(array("'","\"","\\","/"),array("","","","_","_"), $request['geo_location']);
             if(count($group)>0)
             {
-                DB::INSERT("INSERT INTO `restaurant_master`(`group_id`, `name_tagline`, `pure_veg`,`p_exclusive`,`category`,`address`,`email`,`country`,`mobile`,`phone`,`point_of_contact`,`city`,`delivery_range_unit`,`min_delivery_time`,`min_cart_value`,`min_prepration_time`,`speical_message`,`cuisines`,`license_numbers`,`extra_rate_percent`,`google_location`,`logo`,`banner`,`registeration_date`,`delivery_charge`,`packing_charge`,`expensive_rating`,`geo_cordinates`,star_rating)
-                VALUES((select id from restaurant_group where group_name = '".$request['group']."'),json_object('name','" . $request['rname'] . "','tag_line','" . $request['tagline'] . "','description','" . $request['description'] . "'),'$diet','$p_exclusive','" . $request['category'] . "','" . $request['address'] . "','" . $request['email'] . "',json_object('currency','" . $request['currency'] . "','country','" . $request['country'] . "'),json_object('ind','$ind','mobile','" . $request['mobile'] . "'),'$phone','" . $request['ptcontact'] . "','" . $request['city'] . "',json_object('unit','" . $request['unit'] . "','range','$range'),'$del_time','$cart_value','$pre_deltime','" . $request['message'] . "','" . $request['cuisine'] . "','" . $request['lic_cert'] . "','$extra_rate','" . $geo_location . "','$image_url','$banner_url','$date','$del_charge','$pack_charge','" . $request['exp_rating'] . "', '". $geocordinates ."',json_object('count','0','value','4'))");
+                DB::INSERT("INSERT INTO `restaurant_master`(`group_id`, `name_tagline`, `pure_veg`,`p_exclusive`,`category`,`address`,`email`,`country`,`mobile`,`phone`,`point_of_contact`,`city`,`delivery_range_unit`,`min_delivery_time`,`min_cart_value`,`min_prepration_time`,`speical_message`,`cuisines`,`license_numbers`,`extra_rate_percent`,`google_location`,`logo`,`banner`,`registeration_date`,`delivery_charge`,`packing_charge`,`expensive_rating`,safety_tag,`geo_cordinates`,star_rating)
+                VALUES((select id from restaurant_group where group_name = '".$request['group']."'),json_object('name','" . $request['rname'] . "','tag_line','" . $request['tagline'] . "','description','" . $request['description'] . "'),'$diet','$p_exclusive','" . $request['category'] . "','" . $request['address'] . "','" . $request['email'] . "',json_object('currency','" . $request['currency'] . "','country','" . $request['country'] . "'),json_object('ind','$ind','mobile','" . $request['mobile'] . "'),'$phone','" . $request['ptcontact'] . "','" . $request['city'] . "',json_object('unit','" . $request['unit'] . "','range','$range'),'$del_time','$cart_value','$pre_deltime','" . $request['message'] . "','" . $request['cuisine'] . "','" . $request['lic_cert'] . "','$extra_rate','" . $geo_location . "','$image_url','$banner_url','$date','$del_charge','$pack_charge','" . $request['exp_rating'] . "','".$safetytag."', '". $geocordinates ."',json_object('count','0','value','4'))");
 
             }
             else
             {
                 DB::INSERT("INSERT INTO `restaurant_group`(`group_name`)VALUES('".$request['group']."')");
-                DB::INSERT("INSERT INTO `restaurant_master`(`group_id`, `name_tagline`, `pure_veg`,`p_exclusive`,`category`,`address`,`email`,`country`,`mobile`,`phone`,`point_of_contact`,`city`,`delivery_range_unit`,`min_delivery_time`,`min_cart_value`,`min_prepration_time`,`speical_message`,`cuisines`,`license_numbers`,`extra_rate_percent`,`google_location`,`logo`,`banner`,`registeration_date`,`delivery_charge`,`packing_charge`,`expensive_rating`,`geo_cordinates`,star_rating)
-                   VALUES((select id from restaurant_group where group_name = '".$request['group']."'),json_object('name','" . $request['rname'] . "','tag_line','" . $request['tagline'] . "','description','" . $request['description'] . "'),'$diet','$p_exclusive','" . $request['category'] . "','" . $request['address'] . "','" . $request['email'] . "',json_object('currency','" . $request['currency'] . "','country','" . $request['country'] . "'),json_object('ind','$ind','mobile','" . $request['mobile'] . "'),'$phone','" . $request['ptcontact'] . "','" . $request['city'] . "',json_object('unit','" . $request['unit'] . "','range','$range'),'$del_time','$cart_value','$pre_deltime','" . $request['message'] . "','" . $request['cuisine'] . "','" . $request['lic_cert'] . "','$extra_rate','" . $geo_location . "','$image_url','$banner_url','$date','$del_charge','$pack_charge','" . $request['exp_rating'] . "', '". $geocordinates ."',json_object('count','0','value','4'))");
+                DB::INSERT("INSERT INTO `restaurant_master`(`group_id`, `name_tagline`, `pure_veg`,`p_exclusive`,`category`,`address`,`email`,`country`,`mobile`,`phone`,`point_of_contact`,`city`,`delivery_range_unit`,`min_delivery_time`,`min_cart_value`,`min_prepration_time`,`speical_message`,`cuisines`,`license_numbers`,`extra_rate_percent`,`google_location`,`logo`,`banner`,`registeration_date`,`delivery_charge`,`packing_charge`,`expensive_rating`,safety_tag,`geo_cordinates`,star_rating)
+                   VALUES((select id from restaurant_group where group_name = '".$request['group']."'),json_object('name','" . $request['rname'] . "','tag_line','" . $request['tagline'] . "','description','" . $request['description'] . "'),'$diet','$p_exclusive','" . $request['category'] . "','" . $request['address'] . "','" . $request['email'] . "',json_object('currency','" . $request['currency'] . "','country','" . $request['country'] . "'),json_object('ind','$ind','mobile','" . $request['mobile'] . "'),'$phone','" . $request['ptcontact'] . "','" . $request['city'] . "',json_object('unit','" . $request['unit'] . "','range','$range'),'$del_time','$cart_value','$pre_deltime','" . $request['message'] . "','" . $request['cuisine'] . "','" . $request['lic_cert'] . "','$extra_rate','" . $geo_location . "','$image_url','$banner_url','$date','$del_charge','$pack_charge','" . $request['exp_rating'] . "','".$safetytag."', '". $geocordinates ."',json_object('count','0','value','4'))");
             }
             $resultid='';
             $lastinsertedid=DB::select('SELECT id FROM `restaurant_master` WHERE name_tagline->>"$.name" = "'.$request['rname'].'" and google_location = "'.$geo_location.'" ');
@@ -304,10 +310,11 @@ class RestaurantController extends Controller
     //Edit View of Restaurant
     public function restaurant_edit($id)
     {
-		$staffid = Session::get('staffid');
+        $staffid = Session::get('staffid');
         if(!$staffid){return redirect('');}
+
         $restaurantdetail = DB::SELECT('SELECT name_tagline->>"$.name" as name,name_tagline->>"$.description" as description,name_tagline->>"$.tag_line" as tagline,address,email,mobile->>"$.ind" as code,mobile->>"$.mobile" as mob,phone,geo_cordinates,point_of_contact,min_delivery_time,min_cart_value,min_prepration_time,speical_message,cuisines,license_numbers,extra_rate_percent,category,google_location,city,country->>"$.country" as country,country->>"$.currency" as currency,delivery_range_unit->>"$.unit" as unit,star_rating->>"$.value" as value,delivery_range_unit->>"$.range" as ranges,restaurant_group.id as id,star_rating,
-                       expensive_rating,delivery_charge,packing_charge,status,popular_display_order,pure_veg,p_exclusive,busy,logo,banner,restaurant_master.id as rid,restaurant_group.group_name FROM `restaurant_master` LEFT JOIN restaurant_group ON restaurant_master.group_id = restaurant_group.id WHERE restaurant_master.id = "'.$id.'"');
+                       expensive_rating,delivery_charge,packing_charge,safety_tag,status,popular_display_order,pure_veg,p_exclusive,busy,logo,banner,restaurant_master.id as rid,restaurant_group.group_name FROM `restaurant_master` LEFT JOIN restaurant_group ON restaurant_master.group_id = restaurant_group.id WHERE restaurant_master.id = "'.$id.'"');
         $siteurl = Datasource::getsiteurl();
         return view('restaurant.restaurant_edit',compact('restaurantdetail','id','siteurl'));
     }
@@ -442,6 +449,10 @@ class RestaurantController extends Controller
         {
             $edpack_charge = $request['edpack_charge'];
         }
+         if($request['safetytag']!= '')
+        {
+            $safetytag = $request['safetytag'];
+        }
         $restaurant = DB::select("SELECT name_tagline->>'$.name' FROM restaurant_master where name_tagline->>'$.name' = '".$request['edrname']."' and id != '".$rid."'");
         if(count($restaurant)>0)
         {
@@ -478,14 +489,14 @@ class RestaurantController extends Controller
             {
 //                DB::INSERT("INSERT INTO `restaurant_master`(`group_id`, `name_tagline`, `pure_veg`,`category`,`address`,`email`,`country`,`mobile`,`phone`,`point_of_contact`,`city`,`delivery_range_unit`,`min_delivery_time`,`min_cart_value`,`min_prepration_time`,`speical_message`,`cuisines`,`license_numbers`,`extra_rate_percent`,`google_location`,`logo`,`banner`,`registeration_date`)
 //                VALUES((select id from restaurant_group where group_name = '".$request['group']."'),json_object('name','" . $request['rname'] . "','tag_line','" . $request['tagline'] . "','description','" . $request['description'] . "'),'$diet','" . $request['category'] . "','" . $request['address'] . "','" . $request['email'] . "',json_object('currency','" . $request['currency'] . "','country','" . $request['country'] . "'),json_object('ind','$ind','mobile','" . $request['mobile'] . "'),'$phone','" . $request['ptcontact'] . "','" . $request['city'] . "',json_object('unit','" . $request['unit'] . "','range','$range'),'$del_time','$cart_value','$pre_deltime','" . $request['message'] . "','" . $request['cuisine'] . "','" . $request['lic_cert'] . "','$extra_rate','" . $request['geo_location'] . "','$image_url','$banner_url','$date')");
-                  DB::SELECT("UPDATE `restaurant_master` SET `group_id`=(select id from restaurant_group where group_name = '".$request['edgroup']."'),`name_tagline`=json_object('name','" . $request['edrname'] . "','tag_line','" . $request['edtagline'] . "','description','" . $request['eddescription'] . "'),`pure_veg`='$diet',`p_exclusive`='$p_exclusive',`category`='" . $request['edcategory'] . "',`address`='" . $request['edaddress'] . "',`email`='" . $request['edemail'] . "',`phone`='$phone',`mobile`=json_object('ind','$ind','mobile','" . $request['edmobile'] . "'),`point_of_contact`='" . $request['edptcontact'] . "',`city`='" . $request['edcity'] . "',`country`=json_object('currency','" . $request['edcurrency'] . "','country','" . $request['edcountry'] . "'),`delivery_range_unit`=json_object('unit','" . $request['edunit'] . "','range','$range'),`min_delivery_time`='$del_time',`min_prepration_time`='$pre_deltime',`speical_message`='" . $request['edmessage'] . "',`min_cart_value`='$cart_value',`cuisines`='" . $request['edcuisine'] . "',`license_numbers`='" . $request['edlic_cert'] . "',`extra_rate_percent`='$extra_rate',`google_location`='" . $edgeo_location . "',`registeration_date`='$date',`logo`='$logo',`banner`='$banner',`busy`='" . $request['busy'] . "',`status`='".$request['edstatus']."',`popular_display_order`='$order',`delivery_charge`='$eddel_charge',`packing_charge`='$edpack_charge',`expensive_rating`='" . $request['edexp_rate'] . "',`geo_cordinates` =  '". $geocordinates ."' WHERE `id` = '$rid'");
+                  DB::SELECT("UPDATE `restaurant_master` SET `group_id`=(select id from restaurant_group where group_name = '".$request['edgroup']."'),`name_tagline`=json_object('name','" . $request['edrname'] . "','tag_line','" . $request['edtagline'] . "','description','" . $request['eddescription'] . "'),`pure_veg`='$diet',`p_exclusive`='$p_exclusive',`category`='" . $request['edcategory'] . "',`address`='" . $request['edaddress'] . "',`email`='" . $request['edemail'] . "',`phone`='$phone',`mobile`=json_object('ind','$ind','mobile','" . $request['edmobile'] . "'),`point_of_contact`='" . $request['edptcontact'] . "',`city`='" . $request['edcity'] . "',`country`=json_object('currency','" . $request['edcurrency'] . "','country','" . $request['edcountry'] . "'),`delivery_range_unit`=json_object('unit','" . $request['edunit'] . "','range','$range'),`min_delivery_time`='$del_time',`min_prepration_time`='$pre_deltime',`speical_message`='" . $request['edmessage'] . "',`min_cart_value`='$cart_value',`cuisines`='" . $request['edcuisine'] . "',`license_numbers`='" . $request['edlic_cert'] . "',`extra_rate_percent`='$extra_rate',`google_location`='" . $edgeo_location . "',`registeration_date`='$date',`logo`='$logo',`banner`='$banner',`busy`='" . $request['busy'] . "',`status`='".$request['edstatus']."',`popular_display_order`='$order',`delivery_charge`='$eddel_charge',`packing_charge`='$edpack_charge',`expensive_rating`='" . $request['edexp_rate'] . "',`geo_cordinates` =  '". $geocordinates ."' ,safety_tag='".$safetytag."' WHERE `id` = '$rid'");
             }
             else
             {
                 DB::INSERT("INSERT INTO `restaurant_group`(`group_name`)VALUES('".$request['group']."')");
 //              DB::INSERT("INSERT INTO `restaurant_master`(`group_id`, `name_tagline`, `pure_veg`,`category`,`address`,`email`,`country`,`mobile`,`phone`,`point_of_contact`,`city`,`delivery_range_unit`,`min_delivery_time`,`min_cart_value`,`min_prepration_time`,`speical_message`,`cuisines`,`license_numbers`,`extra_rate_percent`,`google_location`,`logo`,`banner`,`registeration_date`)
 //              VALUES((select id from restaurant_group where group_name = '".$request['group']."'),json_object('name','" . $request['rname'] . "','tag_line','" . $request['tagline'] . "','description','" . $request['description'] . "'),'$diet','" . $request['category'] . "','" . $request['address'] . "','" . $request['email'] . "',json_object('currency','" . $request['currency'] . "','country','" . $request['country'] . "'),json_object('ind','$ind','mobile','" . $request['mobile'] . "'),'$phone','" . $request['ptcontact'] . "','" . $request['city'] . "',json_object('unit','" . $request['unit'] . "','range','$range'),'$del_time','$cart_value','$pre_deltime','" . $request['message'] . "','" . $request['cuisine'] . "','" . $request['lic_cert'] . "','$extra_rate','" . $request['geo_location'] . "','$image_url','$banner_url','$date')");
-                DB::SELECT("UPDATE `restaurant_master` SET `group_id`=(select id from restaurant_group where group_name = '".$request['edgroup']."'),`name_tagline`=json_object('name','" . $request['edrname'] . "','tag_line','" . $request['edtagline'] . "','description','" . $request['eddescription'] . "'),`pure_veg`='$diet',`p_exclusive`='$p_exclusive',`category`='" . $request['edcategory'] . "',`address`='" . $request['edaddress'] . "',`email`='" . $request['edemail'] . "',`phone`='$phone',`mobile`=json_object('ind','$ind','mobile','" . $request['edmobile'] . "'),`point_of_contact`='" . $request['edptcontact'] . "',`city`='" . $request['edcity'] . "',`country`=json_object('currency','" . $request['edcurrency'] . "','country','" . $request['edcountry'] . "'),`delivery_range_unit`=json_object('unit','" . $request['edunit'] . "','range','$range'),`min_delivery_time`='$del_time',`min_prepration_time`='$pre_deltime',`speical_message`='" . $request['edmessage'] . "',`min_cart_value`='$cart_value',`cuisines`='" . $request['edcuisine'] . "',`license_numbers`='" . $request['edlic_cert'] . "',`extra_rate_percent`='$extra_rate',`google_location`='" . $edgeo_location . "',`registeration_date`='$date',`logo`='$logo',`banner`='$banner',`busy`='" . $request['busy'] . "',`status`='".$request['edstatus']."',`popular_display_order`='$order',`delivery_charge`='$eddel_charge',`packing_charge`='$edpack_charge',`expensive_rating`='" . $request['edexp_rate'] . "',`geo_cordinates` =  '". $geocordinates ."'  WHERE `id` = '$rid'");
+                DB::SELECT("UPDATE `restaurant_master` SET `group_id`=(select id from restaurant_group where group_name = '".$request['edgroup']."'),`name_tagline`=json_object('name','" . $request['edrname'] . "','tag_line','" . $request['edtagline'] . "','description','" . $request['eddescription'] . "'),`pure_veg`='$diet',`p_exclusive`='$p_exclusive',`category`='" . $request['edcategory'] . "',`address`='" . $request['edaddress'] . "',`email`='" . $request['edemail'] . "',`phone`='$phone',`mobile`=json_object('ind','$ind','mobile','" . $request['edmobile'] . "'),`point_of_contact`='" . $request['edptcontact'] . "',`city`='" . $request['edcity'] . "',`country`=json_object('currency','" . $request['edcurrency'] . "','country','" . $request['edcountry'] . "'),`delivery_range_unit`=json_object('unit','" . $request['edunit'] . "','range','$range'),`min_delivery_time`='$del_time',`min_prepration_time`='$pre_deltime',`speical_message`='" . $request['edmessage'] . "',`min_cart_value`='$cart_value',`cuisines`='" . $request['edcuisine'] . "',`license_numbers`='" . $request['edlic_cert'] . "',`extra_rate_percent`='$extra_rate',`google_location`='" . $edgeo_location . "',`registeration_date`='$date',`logo`='$logo',`banner`='$banner',`busy`='" . $request['busy'] . "',`status`='".$request['edstatus']."',`popular_display_order`='$order',`delivery_charge`='$eddel_charge',`packing_charge`='$edpack_charge',`expensive_rating`='" . $request['edexp_rate'] . "',`geo_cordinates` =  '". $geocordinates ."',safety_tag='".$safetytag."'  WHERE `id` = '$rid'");
             }
             $msg = 'success';
             return response::json(compact('msg'));
@@ -1017,7 +1028,7 @@ class RestaurantController extends Controller
                         $restlist = DB::SELECT("select rt_rest_id as rest_id,rt_from_time as from_time,rt_to_time as to_time from restaurant_timings  where rt_rest_id='$item->res_id'  and rt_day = '$day' and time(rt_from_time) <= '$operationtime' and time(rt_to_time) >='$operationtime'");
 
                         if(count($restlist) != 0) {
-                            $detail =  DB::SELECT("SELECT id as res_id,p_exclusive,JSON_UNQUOTE(name_tagline->'$.name') as name,JSON_UNQUOTE(name_tagline->'$.tag_line') as tag_line,pure_veg,category,cuisines,min_delivery_time,min_prepration_time,speical_message,IFNULL(expensive_rating,0) as expensive_rating,JSON_UNQUOTE(delivery_range_unit->'$.range')  as delivery_range,JSON_UNQUOTE(delivery_range_unit->'$.unit')  as delivery_unit,IFNULL(JSON_UNQUOTE(star_rating->'$.count'),0) as review_count,IFNULL(JSON_UNQUOTE(star_rating->'$.value'),0) as star_vaue,logo,'Open' as status  FROM `restaurant_master` WHERE  id = '".$item->res_id."'  and category != 'Potafo Mart' ORDER BY popular_display_order asc");
+                            $detail =  DB::SELECT("SELECT id as res_id,p_exclusive,JSON_UNQUOTE(name_tagline->'$.name') as name,JSON_UNQUOTE(name_tagline->'$.tag_line') as tag_line,pure_veg,category,cuisines,min_delivery_time,min_prepration_time,speical_message,IFNULL(expensive_rating,0) as expensive_rating,JSON_UNQUOTE(delivery_range_unit->'$.range')  as delivery_range,JSON_UNQUOTE(delivery_range_unit->'$.unit')  as delivery_unit,IFNULL(JSON_UNQUOTE(star_rating->'$.count'),0) as review_count,IFNULL(JSON_UNQUOTE(star_rating->'$.value'),0) as star_vaue,logo,'Open' as status, TIMESTAMPDIFF(MINUTE, current_time(), time(rt_to_time)) as closesin,time(rt_to_time) as closing_time   FROM `restaurant_master`, restaurant_timings WHERE  id = '".$item->res_id."' and rt_rest_id='$item->res_id'  and rt_day = '$day'  and category != 'Potafo Mart' ORDER BY popular_display_order asc");
                                 if(count($detail)>0)
                                 {
                                     if(!in_array($detail[0],$restaurantarr)) {
@@ -1076,7 +1087,7 @@ class RestaurantController extends Controller
                         $restlist = DB::SELECT("select rt_rest_id as rest_id,rt_from_time as from_time,rt_to_time as to_time from restaurant_timings  where rt_rest_id='$item->res_id'  and rt_day = '$day' and time(rt_from_time) <= '$operationtime' and time(rt_to_time) >='$operationtime'");
 
                        if(count($restlist) != 0) {
-                              $detail =  DB::SELECT("SELECT id as res_id,p_exclusive,JSON_UNQUOTE(name_tagline->'$.name') as name,JSON_UNQUOTE(name_tagline->'$.tag_line') as tag_line,pure_veg,category,cuisines,min_delivery_time,min_prepration_time,speical_message,expensive_rating,JSON_UNQUOTE(delivery_range_unit->'$.range')  as delivery_range,JSON_UNQUOTE(delivery_range_unit->'$.unit')  as delivery_unit,IFNULL(JSON_UNQUOTE(star_rating->'$.count'),0) as review_count,IFNULL(JSON_UNQUOTE(star_rating->'$.value'),0) as star_vaue,logo,'Open' as status  FROM `restaurant_master` WHERE  id = '".$item->res_id."'  and category != 'Potafo Mart'  and pure_veg = 'Y' ORDER BY popular_display_order asc");
+                              $detail =  DB::SELECT("SELECT id as res_id,p_exclusive,JSON_UNQUOTE(name_tagline->'$.name') as name,JSON_UNQUOTE(name_tagline->'$.tag_line') as tag_line,pure_veg,category,cuisines,min_delivery_time,min_prepration_time,speical_message,expensive_rating,JSON_UNQUOTE(delivery_range_unit->'$.range')  as delivery_range,JSON_UNQUOTE(delivery_range_unit->'$.unit')  as delivery_unit,IFNULL(JSON_UNQUOTE(star_rating->'$.count'),0) as review_count,IFNULL(JSON_UNQUOTE(star_rating->'$.value'),0) as star_vaue,logo,'Open' as status, TIMESTAMPDIFF(MINUTE, current_time(), time(rt_to_time)) as closesin,time(rt_to_time) as closing_time  FROM `restaurant_master`, restaurant_timings WHERE  id = '".$item->res_id."' and rt_rest_id='$item->res_id'  and rt_day = '$day'  and category != 'Potafo Mart'  and pure_veg = 'Y' ORDER BY popular_display_order asc");
                               if(count($detail)>0)
                               {
                                   if(!in_array($detail[0],$restaurantarr)) {
@@ -1140,7 +1151,7 @@ class RestaurantController extends Controller
                         $restlist = DB::SELECT("select rt_rest_id as rest_id,rt_from_time as from_time,rt_to_time as to_time from restaurant_timings  where rt_rest_id='$item->res_id'  and rt_day = '$day' and time(rt_from_time) <= '$operationtime' and time(rt_to_time) >='$operationtime'");
                         if(count($restlist) != 0)
                         {
-                            $detail =  DB::SELECT("SELECT id as res_id,p_exclusive,JSON_UNQUOTE(name_tagline->'$.name') as name,JSON_UNQUOTE(name_tagline->'$.tag_line') as tag_line,pure_veg,category,cuisines,min_delivery_time,min_prepration_time,speical_message,expensive_rating,JSON_UNQUOTE(delivery_range_unit->'$.range')  as delivery_range,JSON_UNQUOTE(delivery_range_unit->'$.unit')  as delivery_unit,IFNULL(JSON_UNQUOTE(star_rating->'$.count'),0) as review_count,IFNULL(JSON_UNQUOTE(star_rating->'$.value'),0) as star_vaue,logo,'Open' as status  FROM `restaurant_master` WHERE  id = '".$item->res_id."'  and category != 'Potafo Mart'   and p_exclusive = 'Y' ORDER BY popular_display_order asc");
+                            $detail =  DB::SELECT("SELECT id as res_id,p_exclusive,JSON_UNQUOTE(name_tagline->'$.name') as name,JSON_UNQUOTE(name_tagline->'$.tag_line') as tag_line,pure_veg,category,cuisines,min_delivery_time,min_prepration_time,speical_message,expensive_rating,JSON_UNQUOTE(delivery_range_unit->'$.range')  as delivery_range,JSON_UNQUOTE(delivery_range_unit->'$.unit')  as delivery_unit,IFNULL(JSON_UNQUOTE(star_rating->'$.count'),0) as review_count,IFNULL(JSON_UNQUOTE(star_rating->'$.value'),0) as star_vaue,logo,'Open' as status, TIMESTAMPDIFF(MINUTE, current_time(), time(rt_to_time)) as closesin,time(rt_to_time) as closing_time  FROM `restaurant_master` , restaurant_timings WHERE  id = '".$item->res_id."' and rt_rest_id='$item->res_id'  and rt_day = '$day'   and category != 'Potafo Mart'   and p_exclusive = 'Y' ORDER BY popular_display_order asc");
                             if(count($detail)>0)
                             {
                                 if(!in_array($detail[0],$restaurantarr)) {
@@ -1190,7 +1201,7 @@ class RestaurantController extends Controller
                 }
                    else if($item->busy == 'Y')
                     {
-                        $detail =  DB::SELECT("SELECT id as res_id,p_exclusive,JSON_UNQUOTE(name_tagline->'$.name') as name,JSON_UNQUOTE(name_tagline->'$.tag_line') as tag_line,pure_veg,category,cuisines,min_delivery_time,min_prepration_time,speical_message,expensive_rating,JSON_UNQUOTE(delivery_range_unit->'$.range')  as delivery_range,JSON_UNQUOTE(delivery_range_unit->'$.unit')  as delivery_unit,IFNULL(JSON_UNQUOTE(star_rating->'$.count'),0) as review_count,IFNULL(JSON_UNQUOTE(star_rating->'$.value'),0) as star_vaue,logo,'Busy' as status  FROM `restaurant_master` WHERE  id = '".$item->res_id."'  and category != 'Potafo Mart'  and JSON_UNQUOTE(star_rating->'$.value') !='' ORDER BY star_rating->>'$.value' desc, popular_display_order asc");
+                        $detail =  DB::SELECT("SELECT id as res_id,p_exclusive,JSON_UNQUOTE(name_tagline->'$.name') as name,JSON_UNQUOTE(name_tagline->'$.tag_line') as tag_line,pure_veg,category,cuisines,min_delivery_time,min_prepration_time,speical_message,expensive_rating,JSON_UNQUOTE(delivery_range_unit->'$.range')  as delivery_range,JSON_UNQUOTE(delivery_range_unit->'$.unit')  as delivery_unit,IFNULL(JSON_UNQUOTE(star_rating->'$.count'),0) as review_count,IFNULL(JSON_UNQUOTE(star_rating->'$.value'),0) as star_vaue,logo,'Busy' as status, TIMESTAMPDIFF(MINUTE, current_time(), time(rt_to_time)) as closesin,time(rt_to_time) as closing_time  FROM `restaurant_master` WHERE  id = '".$item->res_id."'  and category != 'Potafo Mart'  and JSON_UNQUOTE(star_rating->'$.value') !='' ORDER BY star_rating->>'$.value' desc, popular_display_order asc");
                         if(count($detail)>0)
                         {
                             if(!in_array($detail[0],$restaurantarr)) {
@@ -1205,7 +1216,7 @@ class RestaurantController extends Controller
                         $restlist = DB::SELECT("select rt_rest_id as rest_id,rt_from_time as from_time,rt_to_time as to_time from restaurant_timings  where rt_rest_id='$item->res_id'  and rt_day = '$day' and time(rt_from_time) <= '$operationtime' and time(rt_to_time) >='$operationtime'");
                         if(count($restlist) != 0)
                         {
-                            $detail =  DB::SELECT("SELECT id as res_id,p_exclusive,JSON_UNQUOTE(name_tagline->'$.name') as name,JSON_UNQUOTE(name_tagline->'$.tag_line') as tag_line,pure_veg,category,cuisines,min_delivery_time,min_prepration_time,speical_message,expensive_rating,JSON_UNQUOTE(delivery_range_unit->'$.range')  as delivery_range,JSON_UNQUOTE(delivery_range_unit->'$.unit')  as delivery_unit,IFNULL(JSON_UNQUOTE(star_rating->'$.count'),0) as review_count,IFNULL(JSON_UNQUOTE(star_rating->'$.value'),0) as star_vaue,logo,'Open' as status  FROM `restaurant_master` WHERE  id = '".$item->res_id."'  and category != 'Potafo Mart'   and JSON_UNQUOTE(star_rating->'$.value') !='' ORDER BY star_rating->>'$.value' desc, popular_display_order asc");
+                            $detail =  DB::SELECT("SELECT id as res_id,p_exclusive,JSON_UNQUOTE(name_tagline->'$.name') as name,JSON_UNQUOTE(name_tagline->'$.tag_line') as tag_line,pure_veg,category,cuisines,min_delivery_time,min_prepration_time,speical_message,expensive_rating,JSON_UNQUOTE(delivery_range_unit->'$.range')  as delivery_range,JSON_UNQUOTE(delivery_range_unit->'$.unit')  as delivery_unit,IFNULL(JSON_UNQUOTE(star_rating->'$.count'),0) as review_count,IFNULL(JSON_UNQUOTE(star_rating->'$.value'),0) as star_vaue,logo,'Open' as status  FROM `restaurant_master`, restaurant_timings WHERE  id = '".$item->res_id."' and rt_rest_id='$item->res_id'  and rt_day = '$day'  and category != 'Potafo Mart'   and JSON_UNQUOTE(star_rating->'$.value') !='' ORDER BY star_rating->>'$.value' desc, popular_display_order asc");
                             if(count($detail)>0)
                             {
                                 if(!in_array($detail[0],$restaurantarr)) {
@@ -1268,7 +1279,7 @@ class RestaurantController extends Controller
                         $restlist = DB::SELECT("select rt_rest_id as rest_id,rt_from_time as from_time,rt_to_time as to_time from restaurant_timings  where rt_rest_id='$item->res_id'  and rt_day = '$day' and time(rt_from_time) <= '$operationtime' and time(rt_to_time) >='$operationtime'");
 
                        if(count($restlist) != 0) {
-                              $detail =  DB::SELECT("SELECT id as res_id,p_exclusive,JSON_UNQUOTE(name_tagline->'$.name') as name,JSON_UNQUOTE(name_tagline->'$.tag_line') as tag_line,pure_veg,category,cuisines,min_delivery_time,0 as min_prepration_time,speical_message,expensive_rating,JSON_UNQUOTE(delivery_range_unit->'$.range')  as delivery_range,JSON_UNQUOTE(delivery_range_unit->'$.unit')  as delivery_unit,IFNULL(JSON_UNQUOTE(star_rating->'$.count'),0) as review_count,IFNULL(JSON_UNQUOTE(star_rating->'$.value'),0) as star_vaue,logo,'Open' as status  FROM `restaurant_master` WHERE  id = '".$item->res_id."' and category = 'Potafo Mart' ORDER BY popular_display_order asc");
+                              $detail =  DB::SELECT("SELECT id as res_id,p_exclusive,JSON_UNQUOTE(name_tagline->'$.name') as name,JSON_UNQUOTE(name_tagline->'$.tag_line') as tag_line,pure_veg,category,cuisines,min_delivery_time,0 as min_prepration_time,speical_message,expensive_rating,JSON_UNQUOTE(delivery_range_unit->'$.range')  as delivery_range,JSON_UNQUOTE(delivery_range_unit->'$.unit')  as delivery_unit,IFNULL(JSON_UNQUOTE(star_rating->'$.count'),0) as review_count,IFNULL(JSON_UNQUOTE(star_rating->'$.value'),0) as star_vaue,logo,'Open' as status, TIMESTAMPDIFF(MINUTE, current_time(), time(rt_to_time)) as closesin,time(rt_to_time) as closing_time  FROM `restaurant_master` , restaurant_timings WHERE  id = '".$item->res_id."' and rt_rest_id='$item->res_id'  and rt_day = '$day'  and category = 'Potafo Mart' ORDER BY popular_display_order asc");
                               if(count($detail)>0)
                               {
                                   if(!in_array($detail[0],$restaurantarr)) {
@@ -2000,8 +2011,9 @@ class RestaurantController extends Controller
 
     public function restaurantlogin($id)
     {
-		$staffid = Session::get('staffid');
+        $staffid = Session::get('staffid');
         if(!$staffid){return redirect('');}
+        
         $rows = [];
         $arr = array();
         $restid = $id;
@@ -2766,7 +2778,7 @@ class RestaurantController extends Controller
             $list = DB::SELECT("SELECT customer_id,customer_details->>'$.mobile' as cust_mobile,customer_details->>'$.name' as cust_name from `order_master` where  rest_id ='$id' and rest_confirmed ='N' and order_number=  '$orderno'");
             if(count($list)>0)
             {
-                DB::UPDATE('update order_master set restaurant_confirmation_by = "'.$user_id.'",rest_confirmed ="Y",rest_confirmed_time="'.$time.'",assign_after_time =DATE_ADD(NOW(), INTERVAL 35 SECOND) , assign_status= "Pending"  where order_number = "'.$orderno.'"');
+                DB::UPDATE('update order_master set restaurant_confirmation_by = "'.$user_id.'",rest_confirmed ="Y",rest_confirmed_time="'.$time.'",assign_after_time =DATE_ADD(NOW(), INTERVAL 15 SECOND) , assign_status= "Pending"  where order_number = "'.$orderno.'"');
 				$msg = 'Success';
                 //start of : to notify customer
                 $rest_name = DB::SELECT("SELECT name_tagline->>'$.name' as r_name FROM restaurant_master WHERE id  = $id");
@@ -2790,10 +2802,10 @@ class RestaurantController extends Controller
 
                     }
                 }
-                 $message = "Hi $custname, Thanks for using POTAFO. Your Potafo order no. $orderno has been Accepted & Confirmed by $name_rest. ";
+                $message = "Hi $custname, Thanks for using POTAFO. Your Potafo order no. $orderno has been Accepted & Confirmed by $name_rest. ";
                 $sendmsg = urlencode($message);
                 $smsurl = Datasource::smsurl($custmobile,$sendmsg);
-                $data = file_get_contents($smsurl);  
+                $data = file_get_contents($smsurl); 
 				//end of : to notify customer
             }
             else
@@ -3085,10 +3097,6 @@ class RestaurantController extends Controller
             return response::json(compact('msg'));
         } 
     }
-	
-	
-	
-
 
 }
 

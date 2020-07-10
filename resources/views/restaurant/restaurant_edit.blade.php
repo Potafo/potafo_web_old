@@ -189,11 +189,21 @@
                                     {!! Form::text('edphone',$restaurantdetail[0]->phone, array('class'=>'form-control','id'=>'edphone','name'=>'edphone','onkeypress' => 'return numonly(event);','required','style'=>"background-color:transparent;")) !!}
                                 </div>
                             </div>
-                            <div class="restaurant_more_detail_row" style="width:100%">
+                            <div class="restaurant_more_detail_row" style="width:50%;display:none;">
                                 <div class="restaurant_more_detail_text">
                                     <span class="restaurant_more_detail_text_nm">Point of contact</span>
                                     {!! Form::text('edptcontact',$restaurantdetail[0]->point_of_contact, array('class'=>'form-control','id'=>'edptcontact','name'=>'edptcontact','required','style'=>"background-color:transparent;")) !!}
 
+                                </div>
+                            </div>
+                             <div class="restaurant_more_detail_row" style="width:100%;">
+                                <div class="restaurant_more_detail_text">
+                                    <span class="restaurant_more_detail_text_nm">Safety Tag</span>
+                                   <select id="safetytag" name="safetytag" class="restaurant_more_detail_text_sel">
+                            <option value="0" <?php if($restaurantdetail[0]->safety_tag == 0){ ?>selected <?php } ?>>No Tag</option>
+                            <option value="1" <?php if($restaurantdetail[0]->safety_tag == 1){ ?>selected <?php } ?>>Silver Tag</option>
+                            <option value="2" <?php if($restaurantdetail[0]->safety_tag == 2){ ?>selected <?php } ?>>Gold Tag</option>
+                        </select>
                                 </div>
                             </div>
                             <div class="restaurant_more_detail_row" style="width:50%;display:none;">

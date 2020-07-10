@@ -154,7 +154,7 @@
                 </div>
                 <div class="restaurant_more_detail_row">
                     <div class="restaurant_more_detail_text">
-                        <span class="restaurant_more_detail_text_nm">Currency*</span>
+                        <span class="restaurant_more_detail_text_nm">Currency1*</span>
 
                         <select id="currency" name="currency" class="restaurant_more_detail_text_sel">
                             <option value="Select">Select Currency</option>
@@ -182,10 +182,20 @@
 
                     </div>
                 </div>
-                <div class="restaurant_more_detail_row">
+                <div class="restaurant_more_detail_row" style="width:48%;margin-right:2%">
                     <div class="restaurant_more_detail_text">
                         <span class="restaurant_more_detail_text_nm">Point of contact </span>
                         <input type="text"  id="ptcontact" name="ptcontact">
+                    </div>
+                </div>
+                <div class="restaurant_more_detail_row" style="width:48%;margin-right:2%">
+                    <div class="restaurant_more_detail_text">
+                        <span class="restaurant_more_detail_text_nm">Safety Tag</span>
+                        <select id="safetytag" name="safetytag" class="restaurant_more_detail_text_sel">
+                            <option value="0">No Tag</option>
+                            <option value="1">Silver Tag</option>
+                            <option value="2">Gold Tag</option>
+                        </select>
                     </div>
                 </div>
                 <div class="restaurant_more_detail_row" style="width:48%;margin-right:2%">
@@ -648,6 +658,7 @@ function save_restdet()
   var pack_charge = $("#pack_charge").val();
   var banner = $("#banner").val();
   var lat= $("#lat").val();
+  var safetytag= $("#safetytag").val();
   var long= $("#long").val();
     if(rname == '') {
         $("#rname").focus();
@@ -754,12 +765,12 @@ function save_restdet()
             dataType :'text',
             success : function(result)
             {
-              //alert(result);
+              alert(result);
                 var json_x= JSON.parse(result);
 
 
                 if((json_x.msg)=='success')
-                {//alert("hh")
+                {alert("hh")
                     //alert(json_x.resultid);
                     insertto_firebase(lat,long,rname,city,json_x.resultid,"insert");
                     window.location.href="menu/tax/"+json_x.resultid;
