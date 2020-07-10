@@ -443,7 +443,7 @@ public function fb_check_inprogress($area)
                     return "sorry";
                 }
             }
-            DB::SELECT('UPDATE `order_master` SET `current_status`="C",status_details= JSON_INSERT(status_details,"$.C","'.$time.'"),delivery_assigned_to="'.$staffid.'",delivery_assigned_details= JSON_OBJECT("name","'.$staff_name.'","phone","'.$staff_number.'","note",""),assign_status="Inprogress" WHERE order_number = "'.$order_number.'"');
+            DB::SELECT('UPDATE `order_master` SET `current_status`="C",status_details= JSON_INSERT(status_details,"$.C","'.$time.'"),delivery_assigned_to="'.$staffid.'",`assigned_time` =now(),`assigned_to`="'.$staffid.'",delivery_assigned_details= JSON_OBJECT("name","'.$staff_name.'","phone","'.$staff_number.'","note",""),assign_status="Inprogress" WHERE order_number = "'.$order_number.'"');
             $contact = DB::SELECT("select customer_id,rest_details->>'$.name' as restname,delivery_assigned_details->>'$.phone' as mobile,customer_details->>'$.name' as cst_name,customer_details->>'$.mobile' as cst_mobile,customer_details->>'$.addressline2' as line2,customer_details->>'$.addressline1' as cst_address1 FROM order_master WHERE order_number = '$order_number'");
             $mobile=$contact[0]->mobile;
             $cst_name=$contact[0]->cst_name;
