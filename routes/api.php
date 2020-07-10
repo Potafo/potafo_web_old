@@ -383,6 +383,7 @@ Route::get('spot_delete/{spotid}/{cityid}','SpotController@spot_delete');
 Route::post('add_spot', 'SpotController@add_spot');
 
 Route::post('v2/staff/report', 'ApiController@attendance_report');
-Route::post('v2/staff/split-report', 'ApiController@splitted_attendance_report');
+// Route::post('v2/staff/split-report', 'ApiController@splitted_attendance_report');
+// Route::get('v2/staff/calc', 'ApiController@time_calculate');
 
 Route::post('add_menu_image','MenuController@add_menu_image');

@@ -8,6 +8,9 @@ use App\TimeBonus;
 use App\TimeSlot;
 use Illuminate\Http\Request;
 use DB;
+use DateTime;
+use DateInterval;
+use DatePeriod;
 
 class ApiController extends Controller
 {
@@ -18,94 +21,11 @@ class ApiController extends Controller
      * @post_data staff_id, from_date, to_date. 
      * @return \Illuminate\Http\Response
      */
-    public function splitted_attendance_report(Request $request)
-    {
-        $response = [];
-        $reports_response = [];
-        $staff_id = $request->post('staff_id');
-        $from_date_tmp = $request->post('from_date');
-        $to_date_tmp = $request->post('to_date');
-
-        $time_slots = TimeSlot::all()->where('status', '1');
-
-        $total_earnings = 0;
-
-        foreach ($time_slots as $key => $slote) {
-            $from_date = $from_date_tmp . ' ' . $slote->from_time;
-            $to_date = $to_date_tmp . ' ' . $slote->to_time;
-
-            $reports = StaffAttendance::where('staff_id', $staff_id)
-                ->whereBetween('created_at', [$from_date, $to_date])
-                ->get();
-
-
-            $orders = \DB::SELECT("select count(*) as total_orders from order_master where delivery_assigned_to = $staff_id and order_date between '$from_date' AND '$to_date'");
-
-            if(count($reports) <= 0) {
-                $reports_response[] = [
-                    'time_slot' => $slote->from_time . ' - ' . $slote->to_time,
-                    'duration' => 0,
-                    'order_count' => 0,
-                    'earnings' => 0,
-                ];
-            }
-
-            foreach ($reports as $key => $report) {
-                $duration = 0;
-                $date = $report->created_at->format('Y-m-d');
-                $day = $report->created_at->format('l');
-                $checkin_time = date('G', strtotime($report->checkin_time));
-                $checkot_time = date('G', strtotime($report->checkout_time));
-
-                $in_time = $checkin_time * 60;
-                $out_time = $checkot_time * 60;
-                $duration = ($out_time - $in_time) / 60;
-
-                $earnings = 0;
-                $is_holiday = 0;
-
-                $holiday = Holiday::where('created_at', $report->created_at)->first();
-
-                if ($holiday) {
-                    $is_holiday = 1;
-                }
-
-                $time_slot_bonus = 0;
-                $time_bonus = TimeBonus::where('time_slot_id', $slote->id)->whereBetween('created_at', [$from_date, $to_date])->first();
-
-                if (!$time_bonus) {
-                    $time_slot_bonus = 0;
-                } else {
-                    if ($day == "Sunday" || $day == "Saturday" || $is_holiday) {
-                        $time_slot_bonus = $time_bonus->special_bonus_amount;
-                    } else {
-                        $time_slot_bonus = $time_bonus->bonus_amount;
-                    }
-                }
-
-                $earnings = $time_slot_bonus * $duration;
-
-                $reports_response[] = [
-                    'time_slot' => $slote->from_time . ' - ' . $slote->to_time,
-                    'duration' => $duration,
-                    'order_count' => $orders[0]->total_orders,
-                    'earnings' => $earnings,
-                ];
-            }
-        }
-
-        $response = [
-            'status' => 'success',
-            'response_code' => 200,
-            // 'time_slots' => $time_slots,
-            'reports' => $reports_response
-        ];
-
-        return response($response);
-    }
 
     public function attendance_report(Request $request)
     {
+        $time_slots = TimeSlot::all();
+
         $response = [];
         $reports_response = [];
         $staff_id = $request->post('staff_id');
@@ -114,85 +34,147 @@ class ApiController extends Controller
 
         $from_date = $from_date_tmp . ' 00:00:00';
         $to_date = $to_date_tmp . ' 23:00:00';
-        
-        $reports = StaffAttendance::where('staff_id', $staff_id)
-                                    ->whereBetween('created_at', [$from_date, $to_date])
-                                    ->get();
+
         $duration = 0;
         $bonus_amount = 0;
         $shortage_amount = 0;
-        $earnings = 0;
+        $total_earnings = 0;
         $data = [];
+        $date = '';
+        $orders_count = 0;
 
-        foreach ($reports as $key => $report) {
-            // $time = date('H:i:s', $report->created_at);
-            $time = $report->created_at->format('H:i:s');
-            $time_slot = TimeSlot::where('status', '1')->where('to_time', '>=', $time)->where('from_time', '<=', $time)->first();
-
-            $earnings_amount = TimeBonus::where('time_slot_id', $time_slot->id)->where('created_at', 'like', "$from_date_tmp%")->first();
+        $dates = $this->getDatesFromRange($from_date, $to_date);
 
 
-            $date = $report->created_at->format('Y-m-d');
-            $day = $report->created_at->format('l');
-            $checkin_time_hour = date('G', strtotime($report->checkin_time));
-            $checkot_time_hour = date('G', strtotime($report->checkout_time));
+        foreach ($dates as $key => $date) {
+            $bonus_amount = 0;
+            $shortage_amount = 0;
+            $earnings_log = [];
+            $extra_bonus_log = [];
+            $shortage_log = [];
+            $worked_hours = StaffAttendance::where('staff_id', $staff_id)
+                ->where('created_at', 'like',  $date . '%')
+                ->get();
 
-            $checkin_time_minutes = date('i', strtotime($report->checkin_time));
-            $checkout_time_minutes = date('i', strtotime($report->checkout_time));
+            $total_duration = 0;
+            foreach ($time_slots as $key => $slot) {
+                $from = strtotime($slot->from_time);
+                $to = strtotime($slot->to_time);
 
-            $in_time = $checkin_time_hour * 60;
-            $in_time += $checkin_time_minutes;
-            $out_time = $checkot_time_hour * 60;
-            $out_time += $checkout_time_minutes;
-            $duration = ($out_time - $in_time) / 60;
+                $duration = 0;
+                $earnings = 0;
+                foreach ($worked_hours as $key => $time) {
+                    $date = $time->created_at->format('Y-m-d');
+                    $start_time = strtotime($time->checkin_time);
+                    $to_time = strtotime($time->checkout_time);
 
-            $holiday = Holiday::where('created_at', $report->created_at)->first();
+                    if ($to_time < $from) {
+                        continue;
+                    }
 
-            $from_date = $from_date_tmp . ' ' . $time_slot->from_time;
-            $to_date = $to_date_tmp . ' ' . $time_slot->to_time;
-            
-            $orders = \DB::SELECT("select count(*) as total_orders from order_master where delivery_assigned_to = $staff_id and order_date between '$from_date' AND '$to_date'");
+                    if ($start_time > $to) {
+                        break;
+                    }
 
-            $is_holiday = 0;
+                    if ($start_time < $from) {
+                        $started_at = $from;
+                    } else {
+                        $started_at = $start_time;
+                    }
 
-            if ($holiday) {
-                $is_holiday = 1;
-            }
+                    if ($to > $to_time) {
+                        $end_time = $to_time;
+                    } else {
+                        $end_time = $to;
+                    }
 
-            if($day == 'Saturday' || $day == 'Sunday' || $is_holiday) {
-                $time_slot_bonus = $earnings_amount->special_bonus_amount;
-            } else {
-                $time_slot_bonus = $earnings_amount->bonus_amount;
-            }
+                    $in_time = $started_at * 60;
+                    $out_time = $end_time * 60;
+                    $duration += ($out_time - $in_time) / 60 / 60 / 60;
 
-            if($time_slot_bonus > 0) {
-                $hour_bonus = $time_slot_bonus * $orders[0]->total_orders;
-            } else {
-                $hour_bonus = 0;
-            }
+                    $total_duration += $duration;
 
-            $earnings_from_order = $orders[0]->total_orders * $earnings_amount->amount_per_order;
+                    $from_date = $date . ' ' . date('H:i:s', $started_at);
+                    $to_date = $date . ' ' . date('H:i:s', $end_time);
 
-            $earnings = $hour_bonus + $earnings_from_order;
 
-            $adjusts = DB::SELECT("SELECT * FROM internal_staffs_sal_adj WHERE is_staff_id = 50 AND is_staff_date = '$date'");
+                    $orders = \DB::SELECT("select count(*) as total_orders from order_master where delivery_assigned_to = $staff_id and order_date between '$from_date' AND '$to_date'");
+                    if (count($orders) > 0) {
+                        $orders_count += $orders[0]->total_orders;
+                    }
 
-            foreach ($adjusts as $key => $adjust) {
-                if($adjust->is_mode == 'Bonus') {
-                    $bonus_amount += $adjust->is_staff_amount;
-                } elseif($adjust->is_mode == 'Shortage') {
-                    $shortage_amount += $adjust->is_staff_amount; 
+                    $earning_amount = TimeBonus::where('time_slot_id', $slot->id)->where('created_at', 'like', $date . '%')->first();
+
+                    
+                    if($earning_amount) {
+                        $order_amount = $orders[0]->total_orders * $earning_amount->amount_per_order;
+                        $bonus = $duration * $earning_amount->bonus_amount;
+
+                        $total_earnings += $order_amount += $bonus;
+                    }
+
+                    $earnings_log[] = [
+                        'date' => $date,
+                        'time_slot' => date('H:i', $from) . ' - '  . date('H:i', $to),
+                        'orders_count' => $orders[0]->total_orders,
+                        'order_amount' => $order_amount,
+                        'duration' => number_format((float) $duration, 1, '.', ''),
+                        'bonus_amount' => $bonus,
+                    ];
                 }
             }
-            $total = $earnings + $bonus_amount - $shortage_amount;
 
-            $data [] = [
+            $adjusts = DB::SELECT("SELECT * FROM internal_staffs_sal_adj WHERE is_staff_id = $staff_id AND is_staff_date = '$date'");
+
+            foreach ($adjusts as $key => $adjust) {
+                if ($adjust->is_mode == 'Bonus') {
+                    $bonus_amount += $adjust->is_staff_amount;
+
+                    $extra_bonus_log[] = [
+                        'amount' => $adjust->is_staff_amount,
+                        'reason' => $adjust->is_reason,
+                    ];
+
+                } elseif ($adjust->is_mode == 'Shortage') {
+                    $shortage_amount += $adjust->is_staff_amount;
+
+                    $shortage_log[] = [
+                        'amount' => $adjust->is_staff_amount,
+                        'reason' => $adjust->is_reason,
+                    ];
+                }
+            }
+
+            foreach ($worked_hours as $key => $time) {
+                $_duration = 0;
+                $in = strtotime($time->checkin_time);
+                $out = strtotime($time->checkout_time);
+
+                $in = $started_at * 60;
+                $out = $end_time * 60;
+                $_duration += ($out - $in) / 60 / 60 / 60;
+
+                $attendance_log[] =[
+                    'total_time' => $time->checkin_time . ' - ' . $time->checkout_time,
+                    'duration' => $_duration
+                ];
+            }
+
+
+            $final_amouont = $total_earnings + $bonus_amount - $shortage_amount;
+
+            $data[] = [
                 'date' => $date,
-                'duration' => number_format((float)$duration, 1, '.', ''),
-                'bonus_amount' => $bonus_amount,
-                'shortage_amount' => $shortage_amount,
-                'earnings' => 0,
-                'total' => $total
+                'total_duration' => number_format((float) $total_duration, 1, '.', ''),
+                'total_earnings' => $total_earnings,
+                'extra_bonus' => $bonus_amount,
+                'shortage' => $shortage_amount,
+                'final_amount' => $final_amouont,
+                'total_earnings' => $total_earnings,
+                'earnings_log' => $earnings_log,
+                'bonus_log' => $extra_bonus_log,
+                'shortage_log' => $shortage_log,
+                'attendance' => $attendance_log
             ];
         }
 
@@ -202,5 +184,85 @@ class ApiController extends Controller
             'data' => $data
         ];
         return response($response);
+    }
+
+
+    public function attendance_report___(Request $request)
+    {
+        $time_slots = TimeSlot::all();
+
+        $response = [];
+        $reports_response = [];
+        $staff_id = $request->post('staff_id');
+        $from_date_tmp = $request->post('from_date');
+        $to_date_tmp = $request->post('to_date');
+
+        $from_date = $from_date_tmp . ' 00:00:00';
+        $to_date = $to_date_tmp . ' 23:00:00';
+
+        $duration = 0;
+        $bonus_amount = 0;
+        $shortage_amount = 0;
+        $earnings = 0;
+        $data = [];
+
+        $worked_hours = StaffAttendance::where('staff_id', $staff_id)
+            ->whereBetween('created_at', [$from_date, $to_date])
+            ->get();
+
+        foreach ($worked_hours as $key => $hour) {
+            $checkin_time = $hour->checkin_time;
+            $checkout_time = $hour->checkout_time;
+            $duration = 0;
+
+            foreach ($time_slots as $key => $slot) {
+                $slot_from = $slot->from_time;
+                $to_slot = $slot->to_time;
+
+                if ($checkin_time < $slot_from) {
+                    $started_at = $slot_from;
+                } else {
+                    $started_at = $checkin_time;
+                }
+
+                if ($checkout_time < $to_slot) {
+                    $end_time = $checkout_time;
+                } else {
+                    $end_time = $to_slot;
+                }
+
+                // echo strtotime($end_time) - strtotime($started_at) .' <br>';
+
+                if ((strtotime($end_time) - strtotime($started_at)) <= 0) {
+                    break;
+                }
+
+                echo $started_at . ' - ' . $end_time . '<br>';
+            }
+        }
+    }
+
+    function getDatesFromRange($start, $end, $format = 'Y-m-d')
+    {
+
+        // Declare an empty array 
+        $array = array();
+
+        // Variable that store the date interval 
+        // of period 1 day 
+        $interval = new DateInterval('P1D');
+
+        $realEnd = new DateTime($end);
+        $realEnd->add($interval);
+
+        $period = new DatePeriod(new DateTime($start), $interval, $realEnd);
+
+        // Use loop to store date into array 
+        foreach ($period as $date) {
+            $array[] = $date->format($format);
+        }
+
+        // Return the array elements 
+        return $array;
     }
 }
