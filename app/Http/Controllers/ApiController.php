@@ -78,6 +78,7 @@ class ApiController extends Controller
 
                 $duration = 0;
                 $earnings = 0;
+                $order_amount = 0;
                 foreach ($worked_hours as $key => $time) {
                     $date = $time->created_at->format('Y-m-d');
                     $start_time = strtotime($time->checkin_time);
