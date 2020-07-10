@@ -23,6 +23,7 @@ use DateTime;
 use Session;
 use DateTimeZone;
 use App\StaffAttendance;
+use Auth;
 class StaffController extends Controller
 {
     public function __construct()
