@@ -138,11 +138,13 @@
                                         <table class="table">
                                             <thead>
                                                 <tr>
-                                                    <th style='width: 10%;'>#</th>
-                                                    <th style='width: 10%;'>Name</th>
+                                                    <th style='width: 4%;'>#</th>
+                                                    <th style='width: 7%;'>StaffId</th>
+                                                    <th style='width: 13%;'>Name</th>
                                                     <th style='width: 10%;'>Pending Order</th>
                                                     <th style='width: 10%;'>Total Orders</th>
                                                     <th style='width: 10%;'>Number</th>
+                                                    <th style='width: 10%;'>InTime</th>
                                                     <th style='width: 10%;'>Action</th>
 													<th style='width: 10%;'>Location</th>
                                                 </tr>

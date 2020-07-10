@@ -112,17 +112,18 @@ class DashboardController extends Controller
 	   if($staffid!="")
        {
      //  $assign_staff = DB::SELECT("SELECT a.staff_id,b.first_name,b.last_name,b.mobile FROM delivery_staff_attendence a LEFT JOIN internal_staffs b on a.staff_id=b.id  WHERE a.out_time is NULL and  a.staff_id in (select DISTINCT(id) from internal_staffs s,internal_staffs_area a WHERE s.`id` = a.staff_id and a.area_id in ( SELECT  a1.area_id from users u1, internal_staffs s1, internal_staffs_area a1 where u1.staffid =s1.id and s1.id = a1.staff_id and a1.staff_id = '$staffid'))");
-     $assign_staff = DB::SELECT("SELECT a.`staff_id`,b.first_name,b.last_name,b.mobile FROM staff_attendances a LEFT JOIN internal_staffs b on a.staff_id=b.id  WHERE a.checkout_time is NULL and  a.staff_id in (select DISTINCT(id) from internal_staffs s,internal_staffs_area a1 WHERE s.`id` = a1.staff_id and a1.area_id in ( SELECT  a2.area_id from users u1, internal_staffs s1, internal_staffs_area a2 where u1.staffid =s1.id and s1.id = a2.staff_id and a2.staff_id = '".$staffid ."'))");
+     $assign_staff = DB::SELECT("SELECT a.`staff_id`,a.checkin_time,b.first_name,b.last_name,b.mobile FROM staff_attendances a LEFT JOIN internal_staffs b on a.staff_id=b.id WHERE a.checkout_time is NULL and DATE_FORMAT(a.created_at,'%Y-%m-%d %H:%i:%s') <= now()");
        $i=0;
        $all = array();
        $time_zone   = 'Asia/Kolkata';
        date_default_timezone_set($time_zone);
-       $current_date = "2020-07-02";//date('Y-m-d');
+      $current_date = date('Y-m-d');
        foreach($assign_staff as $staff)
        {
            $name    = $staff->first_name;
            $lastname    = $staff->last_name;
            $mobile  = $staff->mobile;
+           $checkintim  = $staff->checkin_time;
            $pending_details = DB::SELECT("SELECT count(*) as total FROM order_master WHERE delivery_assigned_to='".$staff->staff_id."' AND date(order_date)='".$current_date."' AND current_status IN('OP','C')");
            foreach($pending_details as $val){
                 $pending = $val->total;
@@ -134,7 +135,7 @@ class DashboardController extends Controller
           $lat= $database->getReference('location')->getChild($staff->staff_id)->getChild("current_location")->getChild("latitude")->getValue();
 		  $long= $database->getReference('location')->getChild($staff->staff_id)->getChild("current_location")->getChild("longitude")->getValue();
 
-           $all[$i] = ['name'=>$name.' '.$lastname,'mobile'=>$mobile,'pending'=>$pending,'all_order'=>$all_order,'staffid_on'=>$staff->staff_id,'latitude'=>$lat,'longitude'=>$long];
+           $all[$i] = ['name'=>$name.' '.$lastname,'checkintime'=>$checkintim,'mobile'=>$mobile,'pending'=>$pending,'all_order'=>$all_order,'staffid_on'=>$staff->staff_id,'latitude'=>$lat,'longitude'=>$long];
              $i++;
         }
 		
@@ -146,11 +147,13 @@ class DashboardController extends Controller
 		 {
          $i++; 
          $append.="<tr>";
-         $append.="<td style='width: 10%;'>".$i."</td>";
-         $append.="<td style='width: 10%;'>".$value['name']."</td>";
+         $append.="<td style='width: 4%;'>".$i."</td>";
+         $append.="<td style='width: 7%;'>".$value['staffid_on']."</td>";
+         $append.="<td style='width: 13%;'>".$value['name']."</td>";
          $append.="<td style='width: 10%;'><span class='label label-purple'>".$value['pending']."</span></td>";
          $append.="<td style='width: 10%;'>".$value['all_order']."</td>";
          $append.="<td style='width: 10%;'>".$value['mobile']."</td>";
+         $append.="<td style='width: 10%;'>".$value['checkintime']."</td>";
 		$append.="<td style='width: 10%;'><a class='Location_btn_red' onclick='stop_service_staff(".$value['staffid_on'].")' style='float: left;'><p style='margin-bottom: 0;'>stop</p></a></td>";
 		$append.="<td style='width: 10%;'> <a class='Location_btn' onclick='openMap(".$value['latitude'].",".$value['longitude'].")   style='float: left;'><p style='margin-bottom: 0;'>Location</p></a></td>";
         $append.="</tr>";
