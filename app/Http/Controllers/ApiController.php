@@ -52,7 +52,7 @@ class ApiController extends Controller
             $date_stamp = strtotime($date);
             $to_date_stamp = strtotime($to_date_tmp);
 
-            if($date_stamp >= $to_date_stamp) {
+            if($date_stamp > $to_date_stamp) {
                 continue;
             }
 
