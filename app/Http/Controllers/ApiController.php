@@ -168,6 +168,7 @@ class ApiController extends Controller
                 }
             }
 
+            $attendance_log = [];
             foreach ($worked_hours as $key => $time) {
                 if($time->checkout_time == Null || $time->checkout_time == 'null' || $time->checkout_time == null) {
                     continue;
