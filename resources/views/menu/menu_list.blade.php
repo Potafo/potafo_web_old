@@ -691,7 +691,23 @@
             var menuid= $(this).attr( "menuid" );
             var restaurant_id= $(this).attr( "restaurant_id" );
             var fileName =$(this).val();//$(this).val().split('\\')[$(this).val().split('\\').length - 1];
+            var fl= fileName.split('.');
+            var upl_extn=fl[1];
+            var names_arr = ['jpg', 'png','jpeg','webp'];
+           var check_extn= $.inArray(upl_extn, names_arr);//alert(check_extn);
+            if(check_extn == '-1')
+             {
+                $.Notification.autoHideNotify('error', 'bottom right','Upload png,jpg,jpeg,webp Only.');
+                swal({
+
+                title: "",
+                text: "Upload png,jpg,jpeg,webp Only.",
+                timer: 2000,
+                    showConfirmButton: false
+        });
+                return false;
           
+                }
                 var formData = new FormData();
                 formData.append('file', $('#upld_file_f'+menuid)[0].files[0]);
                 formData.append('menuid', menuid);
@@ -704,7 +720,14 @@
                     type: 'POST',
                     data: formData,
                     success: function(data) {
-                        console.log(data);
+                        //console.log(data);
+                        swal({
+
+                        title: "",
+                        text: "Image Uploaded Successfully",
+                        timer: 2000,
+                        showConfirmButton: false
+                                });
                         location.reload();
                     },
                     error: function() {
