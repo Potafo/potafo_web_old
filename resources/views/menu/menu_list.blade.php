@@ -699,7 +699,6 @@
              {
                 $.Notification.autoHideNotify('error', 'bottom right','Upload png,jpg,jpeg,webp Only.');
                 swal({
-
                 title: "",
                 text: "Upload png,jpg,jpeg,webp Only.",
                 timer: 2000,

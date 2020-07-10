@@ -765,12 +765,12 @@ function save_restdet()
             dataType :'text',
             success : function(result)
             {
-              alert(result);
+              //alert(result);
                 var json_x= JSON.parse(result);
 
 
                 if((json_x.msg)=='success')
-                {alert("hh")
+                {//alert("hh")
                     //alert(json_x.resultid);
                     insertto_firebase(lat,long,rname,city,json_x.resultid,"insert");
                     window.location.href="menu/tax/"+json_x.resultid;
