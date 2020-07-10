@@ -30,7 +30,7 @@ class SpotController extends Controller
             longitude between ($longitude-$dist/cos(radians($latitude))*69) 
             and ($longitude+$dist/cos(radians($latitude))*69) 
             and latitude between ($latitude-($dist/69)) 
-            and ($latitude+($dist/69)) 
+            and ($latitude+($dist/69)) ;
             and status = 1
             and deleted_on is NULL
             having distance < $dist ORDER BY distance limit 5");
@@ -56,7 +56,7 @@ class SpotController extends Controller
     {
         if($latitude != NULL && $longitude != NULL) {
             $dist = 500;
-            $within_radius = DB::select("select name, maplink, radius, latitude, longitude, 3956 * 2 * 
+            $within_radius = DB::select("select id as spot_id, name, maplink, radius, latitude, longitude, 3956 * 2 * 
             ASIN(SQRT( POWER(SIN(($latitude - latitude)*pi()/180/2),2)
             +COS($latitude*pi()/180 )*COS(latitude*pi()/180)
             *POWER(SIN(($longitude-longitude)*pi()/180/2),2))) 
@@ -66,12 +66,13 @@ class SpotController extends Controller
             and latitude between ($latitude-(radius/69)) 
             and ($latitude+(radius/69)) 
             having distance < radius ORDER BY distance limit 100");
-
+            
             if($within_radius){
                 return response(
                     [
                         'status'=> 'success',
                         'response_code' => 200,
+                        'spot_id' => $within_radius[0]->spot_id,
                         'message' => 'Start granted..!'
                     ]
                 );
