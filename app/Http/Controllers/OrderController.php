@@ -2447,7 +2447,8 @@ class OrderController extends Controller
         $iv = substr(hash('sha256', $iv1), 0, 16);
         $password = openssl_encrypt($psw, $encr_method, $key, 0, $iv);
         $password = base64_encode($password);
-
+//ALTER TABLE `order_master` ADD `assigned_time` DATETIME NULL AFTER `dlv_review_details`;
+//ALTER TABLE `order_master` ADD `assigned_to` INT(11) NULL AFTER `assigned_time`;
         $area_current_order = DB::SELECT("SELECT customer_details->>'$.addressline1' as cst_address1 FROM `order_master` WHERE order_number = '$order_number'");
         $cst_address1 = $area_current_order[0]->cst_address1;
 
@@ -2464,7 +2465,7 @@ class OrderController extends Controller
                 if($existdata[0]->staff_change_details=='')
                 {
                     $staffdetail =  '{"staff1":{"fromstaff":"'.$delivery_staff.'","tostaff":"'.$staff_id.'","time":"'.$time.'"}}';
-                    DB::SELECT("UPDATE order_master SET staff_change_details='$staffdetail',staff_notified='N',auth_status=JSON_SET(auth_status,'$.S','$confirm_staff'),delivery_staff_change = 'Y',delivery_assigned_to='$staff_id', assign_status='Manual', delivery_assigned_details= JSON_OBJECT('name','$staff_name','phone','$staff_number','note','$assigned_note') WHERE order_number ='$order_number'");
+                    DB::SELECT("UPDATE order_master SET staff_change_details='$staffdetail',staff_notified='N',auth_status=JSON_SET(auth_status,'$.S','$confirm_staff'),delivery_staff_change = 'Y', delivery_assigned_to='$staff_id',`assigned_time` =now(),`assigned_to`='$staff_id' , assign_status='Manual', delivery_assigned_details= JSON_OBJECT('name','$staff_name','phone','$staff_number','note','$assigned_note') WHERE order_number ='$order_number'");
                     $contact = DB::SELECT("select delivery_assigned_details->>'$.phone' as mobile,customer_details->>'$.name' as cst_name,customer_details->>'$.mobile' as cst_mobile,customer_details->>'$.addressline2' as line2 FROM order_master WHERE order_number = '$order_number'");
                     $mobile=$contact[0]->mobile;
                     $cst_name=$contact[0]->cst_name;
@@ -2491,7 +2492,7 @@ class OrderController extends Controller
                 {
                     $length = DB::SELECT("SELECT JSON_LENGTH(`staff_change_details`) as count FROM `order_master` where order_number='$order_number'");
                     $countstaff =$length[0]->count +1;$staff_count = "staff".$countstaff;
-                    DB::SELECT("UPDATE order_master SET auth_status=JSON_SET(auth_status,'$.S','$confirm_staff'),staff_notified='N',staff_change_details=JSON_INSERT(staff_change_details,'$.$staff_count',JSON_OBJECT('fromstaff','$delivery_staff','tostaff','$staff_id','time','$time')),delivery_assigned_to='$staff_id',assign_status='Manual',delivery_assigned_details= JSON_OBJECT('name','$staff_name','phone','$staff_number','note','$assigned_note') WHERE order_number ='$order_number'");
+                    DB::SELECT("UPDATE order_master SET auth_status=JSON_SET(auth_status,'$.S','$confirm_staff'),staff_notified='N',staff_change_details=JSON_INSERT(staff_change_details,'$.$staff_count',JSON_OBJECT('fromstaff','$delivery_staff','tostaff','$staff_id','time','$time')),delivery_assigned_to='$staff_id',assign_status='Manual',`assigned_time` =now(),`assigned_to`='$staff_id',delivery_assigned_details= JSON_OBJECT('name','$staff_name','phone','$staff_number','note','$assigned_note') WHERE order_number ='$order_number'");
                     $contact = DB::SELECT("select delivery_assigned_details->>'$.phone' as mobile,customer_details->>'$.name' as cst_name,customer_details->>'$.mobile' as cst_mobile,customer_details->>'$.addressline2' as line2 FROM order_master WHERE order_number = '$order_number'");
                     $mobile=$contact[0]->mobile;
                     $cst_name=$contact[0]->cst_name;
@@ -2557,7 +2558,7 @@ class OrderController extends Controller
             }
             else
             {
-                DB::SELECT('UPDATE `order_master` SET `current_status`="C",status_details= JSON_INSERT(status_details,"$.C","'.$time.'"),delivery_assigned_to="'.$staff_id.'",assign_status="Manual",delivery_assigned_details= JSON_OBJECT("name","'.$staff_name.'","phone","'.$staff_number.'","note","'.$assigned_note.'"),auth_status= JSON_OBJECT("C","'.$confirm_staff.'") WHERE order_number = "'.$order_number.'"');
+                DB::SELECT('UPDATE `order_master` SET `current_status`="C",status_details= JSON_INSERT(status_details,"$.C","'.$time.'"),delivery_assigned_to="'.$staff_id.'",assign_status="Manual",`assigned_time` =now(),`assigned_to`="'.$staff_id.'",delivery_assigned_details= JSON_OBJECT("name","'.$staff_name.'","phone","'.$staff_number.'","note","'.$assigned_note.'"),auth_status= JSON_OBJECT("C","'.$confirm_staff.'") WHERE order_number = "'.$order_number.'"');
                 $contact = DB::SELECT("select delivery_assigned_details->>'$.phone' as mobile,customer_details->>'$.name' as cst_name,customer_details->>'$.mobile' as cst_mobile,customer_details->>'$.addressline2' as line2 FROM order_master WHERE order_number = '$order_number'");
                 $mobile=$contact[0]->mobile;
                 $cst_name=$contact[0]->cst_name;
@@ -2602,7 +2603,7 @@ class OrderController extends Controller
             $total_amount=0;
             $orderdetails = DB::SELECT("SELECT ROUND(om.final_total,$decimal_point) as omfinal_total,order_date,upper(payment_method) as paymethod From order_master as om WHERE om.order_number = '$order_number'");
             if(count($orderdetails)>0 && $orderdetails[0]->paymethod == 'COD')
-            {
+            {     
                 DB::select("delete from `internal_staffs_credits` where order_number = '" . $order_number . "'");
                 DB::select("INSERT INTO `internal_staffs_credits`(`staff_id`, `order_number`, `staff_number`, `order_date`, `final_total`) VALUES ('" . $staff_id . "','" . $order_number . "','" . $staff_number . "','". $orderdetails[0]->order_date. "','" . $orderdetails[0]->omfinal_total . "')");
                 $staffamount = DB::SELECT("select a.staff_credit - b.total  as pending_amount from ( select staff_max_credit as staff_credit,id from  `internal_staffs` where id = '".$staff_id."') as a Join (select sum(final_total) as total,staff_id from `internal_staffs_credits` where status in ('Reserve','Credit') and staff_id = '".$staff_id."') as b on a.id = b.staff_id");
