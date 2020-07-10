@@ -54,9 +54,18 @@ class ApiController extends Controller
             $earnings_log = [];
             $extra_bonus_log = [];
             $shortage_log = [];
+            $star_amount = 0;
             $worked_hours = StaffAttendance::where('staff_id', $staff_id)
                 ->where('created_at', 'like',  $date . '%')
                 ->get();
+
+            $orders = DB::SELECT("select review_star from order_master where delivery_assigned_to = $staff_id and order_date like '$date%'");
+
+            foreach ($orders as $key => $order) {
+                if($order->review_star == 5) {
+                    $star_amount += 5;
+                }
+            }
 
             if (count($worked_hours) <= 0 || $date_stamp >= $to_date_stamp) {
                 continue;
@@ -114,7 +123,7 @@ class ApiController extends Controller
 
                     if ($earning_amount) {
                         $order_amount = $orders[0]->total_orders * $earning_amount->amount_per_order;
-                        $bonus = $duration * $earning_amount->bonus_amount;
+                        $bonus = floor($duration) * $earning_amount->bonus_amount;
 
                         $total_earnings = $total_earnings + $order_amount + $bonus;
                     }
@@ -124,7 +133,7 @@ class ApiController extends Controller
                         'time_slot' => date('H:i', $from) . ' - '  . date('H:i', $to),
                         'orders_count' => $orders[0]->total_orders,
                         'order_amount' => $order_amount,
-                        'duration' => number_format((float) $duration, 1, '.', ''),
+                        'duration' => floor($duration),
                         'bonus_amount' => $bonus,
                     ];
                 }
@@ -156,10 +165,20 @@ class ApiController extends Controller
                 $out = strtotime($time->checkout_time);
 
                 $_duration += ($out - $in) / 60 / 60;
+                $_duration = number_format((float) $_duration, 1, '.', '');
+
+                $a = $_duration;
+                $nums = explode('.', $a);
+
+                $duration = $nums[0];
+
+                if(isset($nums[1]) && $nums[1] > 5) {
+                    $duration = $nums[0] . '.5';
+                } 
 
                 $attendance_log[] = [
                     'total_time' => $time->checkin_time . ' - ' . $time->checkout_time,
-                    'duration' => number_format((float) $_duration, 1, '.', ''),
+                    'duration' => $duration,
                 ];
             }
 
@@ -174,6 +193,7 @@ class ApiController extends Controller
                 'shortage' => $shortage_amount,
                 'final_amount' => $final_amouont,
                 'total_earnings' => $total_earnings,
+                'start_amount' => $star_amount,
                 'earnings_log' => $earnings_log,
                 'bonus_log' => $extra_bonus_log,
                 'shortage_log' => $shortage_log,
