@@ -42,6 +42,7 @@ class ApiController extends Controller
         $data = [];
         $date = '';
         $orders_count = 0;
+        $attendance_log = [];
 
         $dates = $this->getDatesFromRange($from_date, $to_date);
 
@@ -55,6 +56,10 @@ class ApiController extends Controller
             $worked_hours = StaffAttendance::where('staff_id', $staff_id)
                 ->where('created_at', 'like',  $date . '%')
                 ->get();
+
+            if (count($worked_hours) <= 0) {
+                continue;
+            }
 
             $total_duration = 0;
             foreach ($time_slots as $key => $slot) {
@@ -105,12 +110,12 @@ class ApiController extends Controller
 
                     $earning_amount = TimeBonus::where('time_slot_id', $slot->id)->where('created_at', 'like', $date . '%')->first();
 
-                    
-                    if($earning_amount) {
+
+                    if ($earning_amount) {
                         $order_amount = $orders[0]->total_orders * $earning_amount->amount_per_order;
                         $bonus = $duration * $earning_amount->bonus_amount;
 
-                        $total_earnings += $order_amount += $bonus;
+                        $total_earnings = $total_earnings + $order_amount + $bonus;
                     }
 
                     $earnings_log[] = [
@@ -134,7 +139,6 @@ class ApiController extends Controller
                         'amount' => $adjust->is_staff_amount,
                         'reason' => $adjust->is_reason,
                     ];
-
                 } elseif ($adjust->is_mode == 'Shortage') {
                     $shortage_amount += $adjust->is_staff_amount;
 
@@ -150,13 +154,11 @@ class ApiController extends Controller
                 $in = strtotime($time->checkin_time);
                 $out = strtotime($time->checkout_time);
 
-                $in = $started_at * 60;
-                $out = $end_time * 60;
-                $_duration += ($out - $in) / 60 / 60 / 60;
+                $_duration += ($out - $in) / 60 / 60;
 
-                $attendance_log[] =[
+                $attendance_log[] = [
                     'total_time' => $time->checkin_time . ' - ' . $time->checkout_time,
-                    'duration' => $_duration
+                    'duration' => number_format((float) $_duration, 1, '.', ''),
                 ];
             }
 
@@ -184,62 +186,6 @@ class ApiController extends Controller
             'data' => $data
         ];
         return response($response);
-    }
-
-
-    public function attendance_report___(Request $request)
-    {
-        $time_slots = TimeSlot::all();
-
-        $response = [];
-        $reports_response = [];
-        $staff_id = $request->post('staff_id');
-        $from_date_tmp = $request->post('from_date');
-        $to_date_tmp = $request->post('to_date');
-
-        $from_date = $from_date_tmp . ' 00:00:00';
-        $to_date = $to_date_tmp . ' 23:00:00';
-
-        $duration = 0;
-        $bonus_amount = 0;
-        $shortage_amount = 0;
-        $earnings = 0;
-        $data = [];
-
-        $worked_hours = StaffAttendance::where('staff_id', $staff_id)
-            ->whereBetween('created_at', [$from_date, $to_date])
-            ->get();
-
-        foreach ($worked_hours as $key => $hour) {
-            $checkin_time = $hour->checkin_time;
-            $checkout_time = $hour->checkout_time;
-            $duration = 0;
-
-            foreach ($time_slots as $key => $slot) {
-                $slot_from = $slot->from_time;
-                $to_slot = $slot->to_time;
-
-                if ($checkin_time < $slot_from) {
-                    $started_at = $slot_from;
-                } else {
-                    $started_at = $checkin_time;
-                }
-
-                if ($checkout_time < $to_slot) {
-                    $end_time = $checkout_time;
-                } else {
-                    $end_time = $to_slot;
-                }
-
-                // echo strtotime($end_time) - strtotime($started_at) .' <br>';
-
-                if ((strtotime($end_time) - strtotime($started_at)) <= 0) {
-                    break;
-                }
-
-                echo $started_at . ' - ' . $end_time . '<br>';
-            }
-        }
     }
 
     function getDatesFromRange($start, $end, $format = 'Y-m-d')
