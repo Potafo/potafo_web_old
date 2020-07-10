@@ -183,7 +183,7 @@ class ApiController extends Controller
             }
 
 
-            $final_amouont = $total_earnings + $bonus_amount - $shortage_amount;
+            $final_amouont = $total_earnings + $bonus_amount - $shortage_amount + $star_amount;
 
             $data[] = [
                 'date' => $date,
