@@ -50,7 +50,12 @@ class ApiController extends Controller
         $dates = $this->getDatesFromRange($from_date, $to_date);
         foreach ($dates as $key => $date) {
             $date_stamp = strtotime($date);
-            $to_date_stamp = strtotime($to_date);
+            $to_date_stamp = strtotime($to_date_tmp);
+
+            if($date_stamp >= $to_date_stamp) {
+                continue;
+            }
+
             $bonus_amount = 0;
             $shortage_amount = 0;
             $earnings_log = [];
