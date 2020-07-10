@@ -1592,7 +1592,7 @@ class StaffController extends Controller
     }
 
 
-    public function deliverystaff_attendance(Request $request, $staff_id)
+    public function deliverystaff_attendance(Request $request, $staff_id, $spot_id = Null)
     {
         $timezone = 'ASIA/KOLKATA';
         $date = new DateTime('now', new DateTimeZone($timezone));
@@ -1600,7 +1600,6 @@ class StaffController extends Controller
         $today = $date->format('Y-m-d');
         $time = $date->format('H:i:s');
         $date1 = $date->format('Y-m-d');
-        $spot_id = $request->post('spot_id');
         $details = DB::SELECT('select id FROM internal_staffs WHERE id="'.$staff_id.'" and active ="Y"');
         if(count($details)>0)
         {
