@@ -119,7 +119,7 @@ class ApiController extends Controller
                     $out_time = $end_time * 60;
                     $duration += ($out_time - $in_time) / 60 / 60 / 60;
 
-                    $total_duration += $duration;
+                    $total_duration += number_format($duration, 1, '.', '');
 
                     $from_date = $date . ' ' . date('H:i:s', $started_at);
                     $to_date = $date . ' ' . date('H:i:s', $end_time);
