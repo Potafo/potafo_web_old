@@ -62,6 +62,7 @@ class ApiController extends Controller
             $extra_bonus_log = [];
             $shortage_log = [];
             $star_amount = 0;
+            $total_earnings = 0;
             $worked_hours = StaffAttendance::where('staff_id', $staff_id)
                 ->where('created_at', 'like',  $date . '%')
                 ->get();
