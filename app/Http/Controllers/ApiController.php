@@ -250,7 +250,7 @@ class ApiController extends Controller
                 $prev_date = $log['date'];
             }
 
-            if($bonus_hour_final < 4) {
+            if($bonus_hour_final < 3.9) {
                 $bonus_hour_final = 0;
                 $bonus_amount_final = 0;
             }
