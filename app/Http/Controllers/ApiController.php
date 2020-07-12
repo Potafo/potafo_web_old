@@ -209,7 +209,7 @@ class ApiController extends Controller
                 'shortage' => $shortage_amount,
                 'final_amount' => $final_amouont,
                 'total_earnings' => $total_earnings,
-                'start_amount' => $star_amount,
+                'star_amount' => $star_amount,
                 'earnings_log' => $earnings_log,
                 'bonus_log' => $extra_bonus_log,
                 'shortage_log' => $shortage_log,
