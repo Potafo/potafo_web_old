@@ -246,8 +246,6 @@ class ApiController extends Controller
                 $prev_date = $log['date'];
             }
 
-            // dd($earnings_logs);
-
             $data[] = [
                 'date' => $date,
                 'total_duration' => number_format((float) $total_duration, 1, '.', ''),
@@ -256,7 +254,7 @@ class ApiController extends Controller
                 'shortage' => $shortage_amount,
                 'final_amount' => $final_amouont,
                 'total_earnings' => $total_earnings,
-                'start_amount' => $star_amount,
+                'star_amount' => $star_amount,
                 'earnings_log' => $earnings_log,
                 'bonus_log' => $extra_bonus_log,
                 'shortage_log' => $shortage_log,
