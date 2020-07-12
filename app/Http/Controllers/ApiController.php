@@ -149,7 +149,7 @@ class ApiController extends Controller
                         'time_slot' => date('H:i', $from) . ' - '  . date('H:i', $to),
                         'orders_count' => $orders[0]->total_orders,
                         'order_amount' => $order_amount,
-                        'duration' => floor($duration),
+                        'duration' => number_format((float) $duration, 1, '.', ''),
                         'work_duration' => floor($work_duration),
                         'is_bonus_hour' => $is_bonus_hour,
                         'bonus_amount' => $bonus,
@@ -187,8 +187,7 @@ class ApiController extends Controller
                 $out = strtotime($time->checkout_time);
 
                 $_duration += ($out - $in) / 60 / 60;
-                // $_duration = number_format((float) $_duration, 1, '.', '');
-                $_duration = floor($_duration);
+                $_duration = number_format((float) $_duration, 1, '.', '');
 
                 // $a = $_duration;
                 // $nums = explode('.', $a);
@@ -201,8 +200,7 @@ class ApiController extends Controller
 
                 $attendance_log[] = [
                     'total_time' => $time->checkin_time . ' - ' . $time->checkout_time,
-                    // 'duration' => number_format((float) $_duration, 1, '.', ''),
-                    'duration' => $_duration
+                    'duration' => number_format((float) $_duration, 1, '.', ''),
                 ];
             }
 
@@ -248,9 +246,10 @@ class ApiController extends Controller
                 $prev_date = $log['date'];
             }
 
+
             $data[] = [
                 'date' => $date,
-                'total_duration' => floor($total_duration),
+                'total_duration' => number_format((float) $total_duration, 1, '.', ''),
                 'total_earnings' => $total_earnings,
                 'extra_bonus' => $bonus_amount,
                 'shortage' => $shortage_amount,
