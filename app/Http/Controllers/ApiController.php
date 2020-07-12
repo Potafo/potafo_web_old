@@ -178,7 +178,7 @@ class ApiController extends Controller
                 $in = strtotime($time->checkin_time);
                 $out = strtotime($time->checkout_time);
 
-                $_duration += number_format((float) ($out - $in), 1, '.', '') / 60 / 60;
+                $_duration += ($out - $in) / 60 / 60;
                 $_duration = number_format((float) $_duration, 1, '.', '');
 
                 // $a = $_duration;
@@ -201,7 +201,7 @@ class ApiController extends Controller
 
             $data[] = [
                 'date' => $date,
-                'total_duration' => number_format((float) $total_duration, 1, '.', ''),
+                'total_duration' => number_format((float) $total_duration, 1, '..', ''),
                 'total_earnings' => $total_earnings,
                 'extra_bonus' => $bonus_amount,
                 'shortage' => $shortage_amount,
