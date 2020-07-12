@@ -181,18 +181,18 @@ class ApiController extends Controller
                 $_duration += ($out - $in) / 60 / 60;
                 $_duration = number_format((float) $_duration, 1, '.', '');
 
-                $a = $_duration;
-                $nums = explode('.', $a);
+                // $a = $_duration;
+                // $nums = explode('.', $a);
 
-                $duration = $nums[0];
+                // $duration = $nums[0];
 
-                if(isset($nums[1]) && $nums[1] > 5) {
-                    $duration = $nums[0] . '.5';
-                } 
+                // if(isset($nums[1]) && $nums[1] > 5) {
+                //     $duration = $nums[0] . '.5';
+                // } 
 
                 $attendance_log[] = [
                     'total_time' => $time->checkin_time . ' - ' . $time->checkout_time,
-                    'duration' => $duration,
+                    'duration' => number_format((float) $_duration, 1, '.', ''),
                 ];
             }
 
@@ -201,7 +201,7 @@ class ApiController extends Controller
 
             $data[] = [
                 'date' => $date,
-                'total_duration' => floor($total_duration),
+                'total_duration' => number_format((float) $total_duration, 1, '.', ''),
                 'total_earnings' => $total_earnings,
                 'extra_bonus' => $bonus_amount,
                 'shortage' => $shortage_amount,
