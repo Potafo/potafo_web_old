@@ -201,7 +201,7 @@ class ApiController extends Controller
 
             $data[] = [
                 'date' => $date,
-                'total_duration' => number_format((float) $total_duration, 1, '.', ''),
+                'total_duration' => floor($total_duration),
                 'total_earnings' => $total_earnings,
                 'extra_bonus' => $bonus_amount,
                 'shortage' => $shortage_amount,
