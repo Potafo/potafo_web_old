@@ -52,7 +52,7 @@ class ApiController extends Controller
             $date_stamp = strtotime($date);
             $to_date_stamp = strtotime($to_date_tmp);
 
-            if($date_stamp > $to_date_stamp) {
+            if ($date_stamp > $to_date_stamp) {
                 continue;
             }
 
@@ -60,6 +60,7 @@ class ApiController extends Controller
             $bonus_amount = 0;
             $shortage_amount = 0;
             $earnings_log = [];
+            $earnings_logs = [];
             $extra_bonus_log = [];
             $shortage_log = [];
             $star_amount = 0;
@@ -71,7 +72,7 @@ class ApiController extends Controller
             $orders = DB::SELECT("select review_star from order_master where delivery_assigned_to = $staff_id and order_date like '$date%'");
 
             foreach ($orders as $key => $order) {
-                if($order->review_star == 5) {
+                if ($order->review_star == 5) {
                     $star_amount += 5;
                 }
             }
@@ -81,12 +82,18 @@ class ApiController extends Controller
             }
 
             $total_duration = 0;
+            $prev_slot = '';
             foreach ($time_slots as $key => $slot) {
+                $prev_slot = $slot;
                 $from = strtotime($slot->from_time);
                 $to = strtotime($slot->to_time);
 
                 $duration = 0;
                 $earnings = 0;
+                $worked_duration = 0;
+                $earnings_hour_bonus = [];
+                $hour_bonus_earned = 0;
+                $total_bonus_hour = 0;
                 foreach ($worked_hours as $key => $time) {
                     $order_amount = 0;
                     $bonus = 0;
@@ -133,8 +140,11 @@ class ApiController extends Controller
 
 
                     if ($earning_amount) {
+                        $worked_duration += floor($duration);
                         $order_amount = $orders[0]->total_orders * $earning_amount->amount_per_order;
                         $bonus = floor($duration) * $earning_amount->bonus_amount;
+
+                        $hour_bonus_earned += $bonus;
 
                         $total_earnings = $total_earnings + $order_amount + $bonus;
                     }
@@ -148,7 +158,60 @@ class ApiController extends Controller
                         'bonus_amount' => $bonus,
                     ];
                 }
+
+                // dd($earnings_log);
+
+                // // $earnings_logs = [];
+                // $prev_time = '';
+                // foreach ($earnings_log as $key => $log) {
+                //     $prev_time = $log['time_slot'];
+                //     if($prev_time == $log['time_slot']) {
+                //         $temp_log = $earnings_log[$key];
+                //         // array_pop($earnings_logs);
+                //     }
+
+                //     $earnings_logs[] = [
+                //         'date' => $log['date'],
+                //         'time_slot' => $log['time_slot'],
+                //         'orders_count' => $log['orders_count'] + $temp_log['orders_count'],
+                //         'order_amount' => $log['order_amount'] + $temp_log['order_amount'],
+                //     ];
+                // }
             }
+            $prev_time = '';
+            $prev_date = '';
+            foreach ($earnings_log as $key => $log) {
+                if ($prev_time == $log['time_slot'] && $prev_date == $log['date']) {
+                    $temp_log = $earnings_log[$key];
+
+                    array_pop($earnings_logs);
+
+                    $earnings_logs[] = [
+                        'date' => $log['date'],
+                        'time_slot' => $log['time_slot'],
+                        'orders_count' => $log['orders_count'] + $temp_log['orders_count'],
+                        'order_amount' => $log['order_amount'] + $temp_log['order_amount'],
+                    ];
+                } else {
+                    $earnings_logs[] = [
+                        'date' => $log['date'],
+                        'time_slot' => $log['time_slot'],
+                        'orders_count' => $log['orders_count'],
+                        'order_amount' => $log['order_amount'],
+                    ];
+                }
+
+                $prev_time = $log['time_slot'];
+                $prev_date = $log['date'];
+            }
+
+            if ($worked_duration <= 4) {
+                $worked_duration = 0;
+                $hour_bonus_earned = 0;
+            }
+            // $earnings_log[] = [
+            //     'hour_bonus_log' => $earnings_hour_bonus
+            // ];
 
             $adjusts = DB::SELECT("SELECT * FROM internal_staffs_sal_adj WHERE is_staff_id = $staff_id AND is_staff_date = '$date'");
 
@@ -172,7 +235,7 @@ class ApiController extends Controller
 
             $attendance_log = [];
             foreach ($worked_hours as $key => $time) {
-                if($time->checkout_time == Null || $time->checkout_time == 'null' || $time->checkout_time == null) {
+                if ($time->checkout_time == Null || $time->checkout_time == 'null' || $time->checkout_time == null) {
                     continue;
                 }
                 $_duration = 0;
@@ -210,14 +273,16 @@ class ApiController extends Controller
                 'final_amount' => $final_amouont,
                 'total_earnings' => $total_earnings,
                 'star_amount' => $star_amount,
-                'earnings_log' => $earnings_log,
+                'earnings_log' => $earnings_logs,
                 'bonus_log' => $extra_bonus_log,
                 'shortage_log' => $shortage_log,
-                'attendance' => $attendance_log
+                'attendance' => $attendance_log,
+                'bonus_hour' => $worked_duration,
+                'hour_bonus_amount' => $hour_bonus_earned
             ];
         }
 
-        if($is_from_app == 1) {
+        if ($is_from_app == 1) {
             $response = [
                 'status' => 'success',
                 'response_code' => 200,
