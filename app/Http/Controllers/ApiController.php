@@ -187,7 +187,8 @@ class ApiController extends Controller
                 $out = strtotime($time->checkout_time);
 
                 $_duration += ($out - $in) / 60 / 60;
-                $_duration = number_format((float) $_duration, 1, '.', '');
+                // $_duration = number_format((float) $_duration, 1, '.', '');
+                $_duration = floor($_duration);
 
                 // $a = $_duration;
                 // $nums = explode('.', $a);
@@ -200,7 +201,8 @@ class ApiController extends Controller
 
                 $attendance_log[] = [
                     'total_time' => $time->checkin_time . ' - ' . $time->checkout_time,
-                    'duration' => number_format((float) $_duration, 1, '.', ''),
+                    // 'duration' => number_format((float) $_duration, 1, '.', ''),
+                    'duration' => floor($_duration),
                 ];
             }
 
