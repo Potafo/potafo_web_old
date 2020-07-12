@@ -214,6 +214,7 @@ class ApiController extends Controller
             $prev_date = '';
             $bonus_amount_final = 0;
             $bonus_hour_final = 0; 
+            $earnings_logs = [];
             foreach ($earnings_log as $key => $log) {
                 if ($prev_time == $log['time_slot'] && $prev_date == $log['date']) {
                     $temp_log = $earnings_log[$key];
