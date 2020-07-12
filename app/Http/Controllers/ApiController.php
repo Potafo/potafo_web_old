@@ -179,6 +179,7 @@ class ApiController extends Controller
             }
 
             $attendance_log = [];
+            $final_duration = 0;
             foreach ($worked_hours as $key => $time) {
                 if($time->checkout_time == Null || $time->checkout_time == 'null' || $time->checkout_time == null) {
                     continue;
@@ -203,6 +204,7 @@ class ApiController extends Controller
                     'total_time' => $time->checkin_time . ' - ' . $time->checkout_time,
                     'duration' => $_duration
                 ];
+                $final_duration += $_duration;
             }
 
 
