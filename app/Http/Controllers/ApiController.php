@@ -202,7 +202,7 @@ class ApiController extends Controller
                 $attendance_log[] = [
                     'total_time' => $time->checkin_time . ' - ' . $time->checkout_time,
                     // 'duration' => number_format((float) $_duration, 1, '.', ''),
-                    'duration' => floor($_duration),
+                    'duration' => $_duration
                 ];
             }
 
