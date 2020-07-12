@@ -178,7 +178,7 @@ class ApiController extends Controller
                 $in = strtotime($time->checkin_time);
                 $out = strtotime($time->checkout_time);
 
-                $_duration += ($out - $in) / 60 / 60;
+                $_duration += number_format((float) ($out - $in), 1, '.', '') / 60 / 60;
                 $_duration = number_format((float) $_duration, 1, '.', '');
 
                 // $a = $_duration;
