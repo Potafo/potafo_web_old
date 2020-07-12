@@ -56,6 +56,7 @@ class ApiController extends Controller
                 continue;
             }
 
+            $_total_duration = 0;
             $bonus_amount = 0;
             $shortage_amount = 0;
             $earnings_log = [];
@@ -180,6 +181,7 @@ class ApiController extends Controller
 
                 $_duration += ($out - $in) / 60 / 60;
                 $_duration = number_format((float) $_duration, 1, '.', '');
+                $_total_duration +=  $_duration;
 
                 // $a = $_duration;
                 // $nums = explode('.', $a);
@@ -201,7 +203,7 @@ class ApiController extends Controller
 
             $data[] = [
                 'date' => $date,
-                'total_duration' => number_format((float) $total_duration, 1, '..', ''),
+                'total_duration' => $_total_duration,
                 'total_earnings' => $total_earnings,
                 'extra_bonus' => $bonus_amount,
                 'shortage' => $shortage_amount,
