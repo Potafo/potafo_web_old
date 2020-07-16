@@ -154,6 +154,8 @@ Route::get("spot_status_change","SpotController@spot_status_change")->name('spot
 
 });
 
+Route::get('four-hour-check/{from_date}/{to_date}', 'ApiController@get_4hour_list');
+
 Route::group(['middlewareGroups' => 'prevent-back-history'],function(){
  Auth::routes();
 });

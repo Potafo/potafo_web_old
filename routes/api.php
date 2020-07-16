@@ -383,6 +383,8 @@ Route::get('spot_delete/{spotid}/{cityid}','SpotController@spot_delete');
 Route::post('add_spot', 'SpotController@add_spot');
 
 Route::post('v2/staff/report', 'ApiController@attendance_report');
+Route::get('v2/admin/staff/report/{from_date}/{to_date}/{staff_id?}', 'ApiController@salary_report');
+Route::get('v2/accounts/staff/report/{from_date}/{to_date}/{staff_id?}', 'ApiController@salary_report_account');
 // Route::post('v2/staff/split-report', 'ApiController@splitted_attendance_report');
 // Route::get('v2/staff/calc', 'ApiController@time_calculate');
 

@@ -53,7 +53,6 @@ class StaffReportController extends Controller
     
     public function filter_staff_reports(Request $request)
     {
-        return response('{"msg":"Not Exist","report_data":[],"Total_Sum":""}');
         $timezone = 'ASIA/KOLKATA';
         $staffid   =   $request['staff_id'];
         $reports_name   =   $request['reports_name'];
@@ -696,6 +695,7 @@ else
             $staffs =  DB::SELECT("SELECT distinct(first_name),last_name,ist.id FROM `delivery_staff_attendence` as at left join  `internal_staffs` as ist on at.staff_id = ist.id where ist.id is not null $string group by id order by first_name");
             if((count($staffs)<=0) && ($from_mode == 'APP'))
             {
+                return response('{"msg":"Not Exist","report_data":[],"Total_Sum":""}');
                 
                if($app_screen == 'DASHBOARD')
                 {
@@ -710,7 +710,7 @@ else
             }
             foreach($staffs as $item=>$value)
             {
-                dd('this');
+                // dd('this');
                 $totalamount = 0;
                 $name = $value->first_name.' '.$value->last_name;
                 $append .=                '<tr role="row" class="odd" style="background-color: #fff !important;">';
@@ -972,6 +972,7 @@ else
                     $totalamount = $totalamount + $date_final_total;
                     if($from_mode == 'APP')
                     {
+                        return response('{"msg":"Not Exist","report_data":[],"Total_Sum":""}');
 
                         if($app_screen == 'DASHBOARD')
                         {
@@ -1019,6 +1020,7 @@ else
             }
             else if($from_mode == 'APP')
             {
+                return response('{"msg":"Not Exist","report_data":[],"Total_Sum":""}');
                  //return response::json(['msg' => $msg,'report_data' =>$arr,'Total_Sum' => '']);
                return response::json(['msg' => $msg,'report_data' =>$arr,'Total_Sum' =>(string) $totalamount]);
             }
