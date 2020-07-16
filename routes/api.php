@@ -386,3 +386,14 @@ Route::post('v2/staff/report', 'ApiController@attendance_report');
 Route::post('v2/staff/split-report', 'ApiController@splitted_attendance_report');
 
 Route::post('add_menu_image','MenuController@add_menu_image');
+
+// delivery staff payment
+Route::post('filter_delvystaff_payment','PaymentDeliveryStaffController@filter_delvystaff_payment');
+
+Route::post('insert_delivery_staff_payment','PaymentDeliveryStaffController@insert_delivery_staff_payment');
+
+Route::post('checkauth_payment','PaymentDeliveryStaffController@checkauth_payment');
+Route::post('accept_amount','PaymentDeliveryStaffController@accept_amount');
+Route::post('accept_upi','PaymentDeliveryStaffController@accept_upi');
+Route::post('reject_amount','PaymentDeliveryStaffController@reject_amount');
+

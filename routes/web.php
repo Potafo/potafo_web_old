@@ -153,6 +153,12 @@ Route::get('view_spot/{id}', 'SpotController@view_spot');
 Route::get("spot_status_change","SpotController@spot_status_change")->name('spot.change_status');
 
 Route::get("load_todays_staff","DashboardController@load_todays_staff");
+Route::get('delivery_staff_payment','PaymentDeliveryStaffController@view_staff_payment');
+Route::get('delivery_staff_history','PaymentDeliveryStaffController@view_staff_payment_history');
+Route::get('load_paymenttable','PaymentDeliveryStaffController@load_paymenttable');
+Route::get('load_paymenttable_history','PaymentDeliveryStaffController@load_paymenttable_history');
+
+Route::get('dashboard','PaymentDeliveryStaffController@dashboard');
 
 });
 
