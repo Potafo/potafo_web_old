@@ -186,7 +186,7 @@
                                 <div class="group">
                                     <div style="position: relative">
                                         <label>Auth Code</label>
-                                        {!! Form::text('authcode',null, ['class'=>'form-control','id'=>'authcode','maxlength'=>'4','onkeypress' => 'return charonly(event);','onkeyup' => 'checkauthcode(this.value);','required','style'=>"background-color:transparent;",'autofocus' => "true"]) !!}
+                                        {!! Form::text('authcode',null, ['class'=>'form-control','id'=>'authcode','maxlength'=>'4','onkeyup' => 'checkauthcode(this.value);','required','style'=>"background-color:transparent;"]) !!}
                                     </div>
                                 </div>
                                 <span id="alertauth" style="color: red"></span>
