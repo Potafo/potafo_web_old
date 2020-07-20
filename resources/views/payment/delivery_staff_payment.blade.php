@@ -584,6 +584,7 @@
         }
         function checkauthcode(authcode)
         {
+            
            var staff= $("#authuser_id").val();
             var lengthofauth=authcode.length;
             if(lengthofauth==4)
@@ -621,7 +622,7 @@
            var fieldid= $("#authpaymentfield_id").val();
            var userid= $("#authuser_id").val();
            var transctn= $("#transcation_id").val();
-
+          // var dateval=$("#date_pay").val();
             var data={"fieldid":fieldid,"userid":userid,"transctn":transctn};
                 $.ajax({
                     method: "post",
@@ -639,8 +640,9 @@
                 timer: 1000,
                 showConfirmButton: false
                 });
-                location.reload();
-                        
+                //location.reload();
+                $("#authuser").hide();
+                load_paylist();       
                         }
                     });
 
@@ -700,7 +702,9 @@ function enter_remark()
                 timer: 1000,
                 showConfirmButton: false
                 });
-                location.reload();
+                $("#remarks_div").hide();
+                load_paylist();   
+               // location.reload();
                         
                         }
                     });
