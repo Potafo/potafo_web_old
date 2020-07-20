@@ -333,7 +333,14 @@ header('Content-Type: text/html');?>
                                     window.location.href='welcome_restaurant';
                                 }
                                 else{
-                                    window.location.href='index';
+                                    var designation = result.designation;
+                                    if(designation=="Collection Point")
+                                    {
+                                        window.location.href='dashboard';
+                                    }else{
+                                        window.location.href='index';
+                                    }
+                                    
                                    /* designarray = new Array("MANAGER", "SUPER_ADMIN","ADMIN");
                                     var designation = result.designation;
                                     if(designation)

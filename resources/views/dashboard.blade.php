@@ -66,7 +66,10 @@
     
 
 
-    Welcome 
+   <div  style="text-align: center;
+   margin-top: 25%;
+   font-size: larger;
+   color: brown;"> Welcome To Potafo</div>
     
     
     
