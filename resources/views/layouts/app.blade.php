@@ -190,10 +190,15 @@
             <div id="sidebar-menu">
                
                 <ul>
-                  
+                  @if($designation_logged[0]->designation !="Admin" || $designation_logged[0]->designation !="Super_Admin")
+                  <li>
+                    <a href="{{ url('dashboard') }}" class="waves-effect"><i class="fa fa-dashboard"></i><span>Dashboard</span></a>
+                    </li>
+                  @else
                     <li>
                     <a href="{{ url('index') }}" class="waves-effect"><i class="fa fa-dashboard"></i><span>Dashboard</span></a>
                     </li>
+                    @endif
                  @foreach($module as $moduleshow)
                  @if($moduleshow->count>1)
             

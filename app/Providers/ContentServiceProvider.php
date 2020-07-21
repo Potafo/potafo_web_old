@@ -53,6 +53,7 @@ class ContentServiceProvider extends ServiceProvider
         $this->categoryorderstatus();
         $this->orderstatus();
         $this->load_dropdowns();
+        $this->login_designation();
     }
     private function loadheader()
     {
@@ -253,6 +254,16 @@ class ContentServiceProvider extends ServiceProvider
              $module = DB::SELECT("SELECT DISTINCT(mm.module_name),mm.display_order,(select page_link from module_master mst where mm.module_name =  mst.module_name limit 0,1) as page_link,(select count(`sub_module`) from module_master ms where ms.module_name = mm.module_name) as count from module_master mm LEFT JOIN users_modules um ON mm.m_id=um.module_id where mm.module_for='C' and um.user_id = '$setuserid' and um.active='Y' order by display_order asc");
             $modulesublist = DB::SELECT("SELECT mm.module_name,mm.m_id,mm.sub_module,mm.page_link from module_master mm LEFT JOIN users_modules um ON mm.m_id=um.module_id where mm.module_for='C' and um.user_id = '$setuserid' and um.active='Y'");
             $view->with(['module' => $module,'modulesublist'=>$modulesublist,'staffid'=>$staffid,'setuserid'=>$setuserid]);
+        });
+    }
+    private function login_designation()
+    {
+         view()->composer(['*'], function($view)
+        {
+            $staffid = Session::get('staffid');
+            $setuserid = Session::get('setuserid');
+             $designation_logged = DB::SELECT("SELECT `designation` FROM `internal_staffs` WHERE `id`='$staffid'");   
+            $view->with(['designation_logged' => $designation_logged]);
         });
     }
   }
