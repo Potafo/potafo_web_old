@@ -114,7 +114,7 @@ class PaymentDeliveryStaffController extends Controller
                     $staff_to=3;
                  }
                  
-                 $dd=date("Y-m-d",strtotime($datecheck));
+                 $dd=date("Y-m-d",strtotime($datecheck));                
                   if($designation=="Admin" || $designation=="Super_Admin")
                 {
                     //,'internal_staffs.last_name'
@@ -230,15 +230,17 @@ return $append;
         $paymnt->amount =$request['amount'];
         $paymnt->status =0;
         $paymnt->save();
-        $arr = array();
-        $arr[0] = 'success';
+        //$arr = array();
+        $status = 'success';
+        $response_code = '200';
         //$msg = 'success';
-        return response::json(['data' =>$arr]);
+        return response::json(['status' =>$status,'response_code' =>$response_code]);
     }
     public function checkauth_payment(Request $request)
     {
+        $authcode=($request['authcode']);
         $rows=AuthLogin::where('userid',$request['staff']) 
-        ->where('auth_code',$request['authcode'])            
+        ->where('auth_code',$authcode)            
         ->get();
         if(count($rows)>0)
         {
@@ -426,6 +428,7 @@ return $append;
     }
     public function dashboard()
     {
+        //echo bcrypt("1234");exit();
         return view('dashboard');
     }
 
